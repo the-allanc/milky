@@ -4,7 +4,16 @@ import httpx
 import milky
 import urllib.parse
 
-class RtmError(Exception): pass
+class ResponseError(Exception):
+
+    def __init__(self, code, message):
+        super().__init__(code, message)
+        self.code = code
+        self.message = message
+
+    def __str__(self):
+        return f'{self.code}: {self.message}'
+
 class Transport:
 
     AUTH_URL = 'https://api.rememberthemilk.com/services/auth/'
@@ -41,9 +50,7 @@ class Transport:
         result = ElementTree.fromstring(resp.text)
         if result.get('stat') == 'fail':
             err = result.find('err')
-            error = RtmError(err.get('msg'))
-            error.code = int(err.get('code'))
-            raise error
+            raise ResponseError(int(err.get('code')), err.get('msg'))
 
         return result
 
@@ -73,7 +80,7 @@ class Transport:
         try:
             self.invoke('rtm.auth.checkToken', v=None)
             return True
-        except RtmError as e:
+        except ResponseError as e:
             if e.code == 98:
                 return False
             raise

@@ -1,5 +1,5 @@
 import pytest
-from milky.transport import Transport, RtmError
+from milky.transport import Transport, ResponseError
 
 class TestTransport:
 
@@ -22,20 +22,20 @@ class TestTransport:
     @pytest.mark.vcr
     def test_invalid_api_key(self):
         r = Transport(self.API_KEY, self.SECRET)
-        with pytest.raises(RtmError):
+        with pytest.raises(ResponseError):
             r.start_auth()
 
     @pytest.mark.vcr
     def test_invalid_signature(self):
         r = Transport(self.API_KEY, self.SECRET)
-        with pytest.raises(RtmError):
+        with pytest.raises(ResponseError):
             r.start_auth()
 
     @pytest.mark.vcr
     def test_bad_frob(self):
         r = Transport(self.API_KEY, self.SECRET)
         r.start_auth()
-        with pytest.raises(RtmError, match="Invalid frob - did you authenticate?"):
+        with pytest.raises(ResponseError, match="101: Invalid frob - did you authenticate?"):
             r.finish_auth()
 
     @pytest.mark.block_network
