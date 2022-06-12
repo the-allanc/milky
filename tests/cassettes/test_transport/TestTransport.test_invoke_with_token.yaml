@@ -1,0 +1,90 @@
+interactions:
+- request:
+    body: null
+    headers:
+      accept-encoding:
+      - gzip, deflate
+      cache-control:
+      - no-cache, max-age=0
+      user-agent:
+      - Python-httplib2/0.20.4 (gzip)
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.test.login&api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&v=2&api_sig=28b051eaf346be4c19f51f299f517157
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><user id="7447825"><username>milkymark</username></user></rsp>
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 719e789e38e372bb-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sun, 12 Jun 2022 00:29:16 GMT
+      Expect-CT:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '115'
+      vary:
+      - Accept-Encoding
+      x-s-t:
+      - 0 3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      accept-encoding:
+      - gzip, deflate
+      cache-control:
+      - no-cache, max-age=0
+      user-agent:
+      - Python-httplib2/0.20.4 (gzip)
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.time.parse&api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&text=jun+19&v=2&api_sig=89dc56489de53e0ad4c71a9073636ef2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><time precision="date">2022-06-19T00:00:00Z</time></rsp>
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 719e78a10b8872bb-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sun, 12 Jun 2022 00:29:16 GMT
+      Expect-CT:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '109'
+      vary:
+      - Accept-Encoding
+      x-s-t:
+      - 0 5
+    status:
+      code: 200
+      message: OK
+version: 1

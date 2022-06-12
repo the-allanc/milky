@@ -1,0 +1,47 @@
+interactions:
+- request:
+    body: null
+    headers:
+      accept-encoding:
+      - gzip, deflate
+      cache-control:
+      - no-cache, max-age=0
+      user-agent:
+      - Python-httplib2/0.20.4 (gzip)
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.auth.checkToken&api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&api_sig=955e99cb8aa83fd870146e338757693e
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="fail"><err code="98"
+        msg="Login failed / Invalid auth token"/></rsp>
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 719e281c78f1746c-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sat, 11 Jun 2022 23:34:18 GMT
+      Expect-CT:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '117'
+      vary:
+      - Accept-Encoding
+      x-s-t:
+      - 0 2
+    status:
+      code: 200
+      message: OK
+version: 1

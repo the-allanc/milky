@@ -7,9 +7,11 @@ authors = ["Allan Crooks <allan@sixtyten.org>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 RtmAPI = "^0.7.2"
+httplib2 = "^0.20.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+pytest-recording = "^0.12.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
