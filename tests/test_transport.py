@@ -1,5 +1,6 @@
 import pytest
-from rtmapi import Rtm
+from milky.transport import Transport
+from rtmapi import RtmRequestFailedException
 
 class TestTransport:
 
@@ -11,52 +12,61 @@ class TestTransport:
 
     @pytest.mark.vcr
     def test_desktop_auth(self):
-       r = Rtm(self.API_KEY, self.SECRET, 'write', api_version=2)
-       url, frob = r.authenticate_desktop()
-       r.retrieve_token(frob)
+       r = Transport(self.API_KEY, self.SECRET)
+       r.start_auth()
+       r.finish_auth()
  
     @pytest.mark.vcr
     def test_invalid_api_key(self):
-       r = Rtm(self.API_KEY, self.SECRET, 'read', api_version=2)
-       url, frob = r.authenticate_desktop()
+       r = Transport(self.API_KEY, self.SECRET)
+       with pytest.raises(RtmRequestFailedException):
+            r.start_auth()
 
     @pytest.mark.vcr
     def test_invalid_signature(self):
-       r = Rtm(self.API_KEY, self.SECRET, 'delete', api_version=2)
-       url, frob = r.authenticate_desktop()
+       r = Transport(self.API_KEY, self.SECRET)
+       with pytest.raises(RtmRequestFailedException):
+            r.start_auth()
 
     @pytest.mark.vcr
     def test_bad_frob(self):
-       r = Rtm(self.API_KEY, self.SECRET, 'write', api_version=2)
-       url, frob = r.authenticate_desktop()
-       r.retrieve_token(frob)
+       r = Transport(self.API_KEY, self.SECRET)
+       r.start_auth()
+       with pytest.raises(RuntimeError, match='could not finish auth'):
+            r.finish_auth()
 
     @pytest.mark.block_network
     def test_mobile_auth(self):
-        "todo"
+        r = Transport(self.API_KEY, self.SECRET)
+        r.start_auth(webapp=True)
 
     @pytest.mark.vcr
     def test_given_token(self):
-        r = Rtm(self.API_KEY, self.SECRET, 'read', api_version=2, token=self.TOKEN)
-        assert r.token_valid()
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        assert r.authed
 
     @pytest.mark.vcr
     def test_bad_token(self):
-        r = Rtm(self.API_KEY, self.SECRET, 'write', api_version=2, token=self.TOKEN)
-        assert not r.token_valid()
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        assert not r.authed
         
     @pytest.mark.vcr
     def test_invoke_with_token(self):
-        r = Rtm(self.API_KEY, self.SECRET, 'delete', api_version=2, token=self.TOKEN)
-        r._call_method_auth('rtm.test.login')
-        r._call_method_auth('rtm.time.parse', text='jun 19')
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        r.invoke('rtm.test.login')
+        r.invoke('rtm.time.parse', text='jun 19')
 
-    @pytest.mark.vcr
+    @pytest.mark.vcr("TestTransport.test_desktop_auth.yaml", "TestTransport.test_invoke_with_token.yaml")
     def test_invoke_get_token(self):
         # Just combine auth part and then invoke.
-        pass
+        r = Transport(self.API_KEY, self.SECRET)
+        r.start_auth()
+        r.invoke('rtm.test.login')
+        r.invoke('rtm.time.parse', text='jun 19')
 
     @pytest.mark.block_network
     def test_invoke_no_token(self):
         #should just raise an error, no request"
-        pass
+        r = Transport(self.API_KEY, self.SECRET)
+        with pytest.raises(RuntimeError, match='token is required'):
+            r.invoke('rtm.test.login')
