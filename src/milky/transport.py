@@ -1,53 +1,102 @@
-from rtmapi import Rtm
+from xml.etree import ElementTree
+import hashlib
+import httpx
+import milky
+import urllib.parse
 
+class RtmError(Exception): pass
 class Transport:
 
-    # Perms should be in auth link!
-    PERM_READ = 'read'
-    PERM_WRITE = 'write'
-    PERM_FULL = 'delete'
+    AUTH_URL = 'https://api.rememberthemilk.com/services/auth/'
+    REST_URL = 'https://api.rememberthemilk.com/services/rest/'
+    frob = None
 
-    def __init__(self, api_key, secret, token=None):
-        self._api = Rtm(api_key, secret, 'whatever', token, api_version=2)
-        self._frob = None
+    def __init__(self, api_key, secret, token=None, client=None):
+        self.api_key = api_key
+        self.secret = secret
+        self._token = token
+
+        if not client:
+            client = httpx.Client()
+            hdrs = client.headers
+            hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
+        self.client = client
 
     def invoke(self, method, **kwargs):
-        if not self.token:
+        if kwargs.get('auth_token') is False:
+            del kwargs['auth_token']
+        elif not self._token:
             raise RuntimeError('token is required')
-        return self._api._call_method_auth(method, **kwargs)._RtmObject__element
+        else:
+            kwargs.setdefault('auth_token', self.token)
+        if 'v' in kwargs and kwargs['v'] is None:
+            del kwargs['v']
+        else:
+            kwargs['v'] = 2
+        kwargs = self.sign_params(method=method, **kwargs)
+
+        resp = self.client.get(self.REST_URL, params=kwargs, headers={"cache-control": "no-cache"})
+        resp.raise_for_status()
+
+        result = ElementTree.fromstring(resp.text)
+        if result.get('stat') == 'fail':
+            err = result.find('err')
+            error = RtmError(err.get('msg'))
+            error.code = int(err.get('code'))
+            raise error
+
+        return result
+
+    def sign_params(self, **params):
+        params.setdefault('api_key', self.api_key)
+        param_pairs = tuple(sorted(params.items()))
+        paramstr = ''.join(f'{k}{v}' for (k, v) in param_pairs)
+        payload = f'{self.secret}{paramstr}'
+        sig = hashlib.md5(payload.encode('utf-8')).hexdigest()
+        return param_pairs + (('api_sig', sig),)
 
     @property
     def token(self):
-        if self._frob and not self._api.token:
+        if (not self._token) and self.frob:
             self.finish_auth()
-        return self._api.token
+        return self._token
 
     @token.setter
     def token(self, value):
-        self._api.token = value
-        self._frob = None
+        self._token = value
+        del self.frob
 
     @property
     def authed(self):
-        return self._api.token_valid()
+        if not self._token:
+            return False
+        try:
+            self.invoke('rtm.auth.checkToken', v=None)
+            return True
+        except RtmError as e:
+            if e.code == 98:
+                return False
+            raise
 
     def start_auth(self, perms='read', open=False, webapp=False):
-        self._api.perms = perms
-        if webapp:
-            if open:
-                raise ValueError('cannot use "open" and "webapp" together')
-            return self._api.authenticate_webapp()
+        params = {}
+        if not webapp:
+            rsp = self.invoke('rtm.auth.getFrob', auth_token=False)
+            params['frob'] = self.frob = rsp.find('frob').text
 
-        url, frob = self._api.authenticate_desktop()
-        self._frob = frob
+        params = self.sign_params(perms=perms, **params)
+        url = self.AUTH_URL + '?' + urllib.parse.urlencode(params)
+
         if open:
+            if webapp:
+                raise ValueError('cannot use "open" and "webapp" together')
             webbrowser.open(url)
+
         return url
 
     def finish_auth(self):
-        if not self._frob:
-            raise RuntimeError('must call auth_link first')
-        result = self._api.retrieve_token(self._frob)
-        self._frob = None
-        if not result:
-            raise RuntimeError('could not finish auth')
+        if not self.frob:
+            raise RuntimeError('must call start_auth first')
+        rsp = self.invoke('rtm.auth.getToken', frob=self.frob, auth_token=False, v=None)
+        self._token = rsp.find('auth/token').text
+        del self.frob

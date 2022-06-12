@@ -1,7 +1,5 @@
 import pytest
-from milky.transport import Transport
-from rtmapi import RtmRequestFailedException
-
+from milky.transport import Transport, RtmError
 
 class TestTransport:
 
@@ -19,25 +17,25 @@ class TestTransport:
         r = Transport(self.API_KEY, self.SECRET)
         url = r.start_auth("write")
         r.finish_auth()
-        assert url == f"{self.AUTH_URL}&perms=write&frob={FROB}&api_sig={SIG}"
+        assert url == f"{self.AUTH_URL}&frob={FROB}&perms=write&api_sig={SIG}"
 
     @pytest.mark.vcr
     def test_invalid_api_key(self):
         r = Transport(self.API_KEY, self.SECRET)
-        with pytest.raises(RtmRequestFailedException):
+        with pytest.raises(RtmError):
             r.start_auth()
 
     @pytest.mark.vcr
     def test_invalid_signature(self):
         r = Transport(self.API_KEY, self.SECRET)
-        with pytest.raises(RtmRequestFailedException):
+        with pytest.raises(RtmError):
             r.start_auth()
 
     @pytest.mark.vcr
     def test_bad_frob(self):
         r = Transport(self.API_KEY, self.SECRET)
         r.start_auth()
-        with pytest.raises(RuntimeError, match="could not finish auth"):
+        with pytest.raises(RtmError, match="Invalid frob - did you authenticate?"):
             r.finish_auth()
 
     @pytest.mark.block_network
@@ -83,7 +81,7 @@ class TestTransport:
     )
     def test_invoke_get_token(self):
         # Just combine auth part and then invoke.
-        r = Transport(self.API_KEY, self.SECRET)
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         r.start_auth("read")
         r.invoke("rtm.test.login")
         resp = r.invoke("rtm.time.parse", text="jun 19")
