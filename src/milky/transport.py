@@ -3,6 +3,7 @@ import hashlib
 import httpx
 import milky
 import urllib.parse
+import webbrowser
 
 class ResponseError(Exception):
 
@@ -38,11 +39,8 @@ class Transport:
             raise RuntimeError('token is required')
         else:
             kwargs.setdefault('auth_token', self.token)
-        if 'v' in kwargs and kwargs['v'] is None:
-            del kwargs['v']
-        else:
-            kwargs['v'] = 2
-        kwargs = self.sign_params(method=method, **kwargs)
+
+        kwargs = self.sign_params(method=method, v=2, **kwargs)
 
         resp = self.client.get(self.REST_URL, params=kwargs, headers={"cache-control": "no-cache"})
         resp.raise_for_status()
@@ -78,7 +76,7 @@ class Transport:
         if not self._token:
             return False
         try:
-            self.invoke('rtm.auth.checkToken', v=None)
+            self.invoke('rtm.auth.checkToken')
             return True
         except ResponseError as e:
             if e.code == 98:
@@ -104,6 +102,6 @@ class Transport:
     def finish_auth(self):
         if not self.frob:
             raise RuntimeError('must call start_auth first')
-        rsp = self.invoke('rtm.auth.getToken', frob=self.frob, auth_token=False, v=None)
+        rsp = self.invoke('rtm.auth.getToken', frob=self.frob, auth_token=False)
         self._token = rsp.find('auth/token').text
         del self.frob

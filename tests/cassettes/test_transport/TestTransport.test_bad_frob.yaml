@@ -53,7 +53,7 @@ interactions:
       user-agent:
       - Python-httplib2/0.20.4 (gzip)
     method: GET
-    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.auth.getToken&api_key=c90238bdea098efa089dfa9bda082903&frob=85cfb0d6aece75f477f99c1afe4b8d006977244e&api_sig=2887e047f1ef21ed03fe5f49b39094b5
+    uri: https://api.rememberthemilk.com/services/rest/?api_key=c90238bdea098efa089dfa9bda082903&frob=85cfb0d6aece75f477f99c1afe4b8d006977244e&method=rtm.auth.getToken&v=2&api_sig=941207d12bfe35810caa97b6606ef2c8
   response:
     body:
       string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="fail"><err code="101"

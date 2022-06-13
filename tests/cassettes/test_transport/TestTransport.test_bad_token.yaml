@@ -9,7 +9,7 @@ interactions:
       user-agent:
       - Python-httplib2/0.20.4 (gzip)
     method: GET
-    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.auth.checkToken&api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&api_sig=955e99cb8aa83fd870146e338757693e
+    uri: https://api.rememberthemilk.com/services/rest/?api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&method=rtm.auth.checkToken&v=2&api_sig=b8dcbea776b6c1b7b338421a7c12bdd8
   response:
     body:
       string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="fail"><err code="98"
