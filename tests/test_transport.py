@@ -51,9 +51,22 @@ class TestTransport:
         assert r.authed
 
     @pytest.mark.vcr
+    def test_given_token_json(self):
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        result = r.invoke('rtm.auth.checkToken', format='json')
+        assert result['rsp']['auth']['perms'] == 'read'
+
+    @pytest.mark.vcr
     def test_bad_token(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         assert not r.authed
+
+    @pytest.mark.vcr
+    def test_bad_token_json(self):
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        with pytest.raises(ResponseError, match='98: Login failed / Invalid auth token') as e:
+            r.invoke('rtm.auth.checkToken', format='json')
+        assert e.value.code == 98
 
     @pytest.mark.vcr
     def test_invoke_with_token(self):

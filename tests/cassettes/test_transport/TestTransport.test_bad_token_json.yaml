@@ -1,0 +1,51 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      cache-control:
+      - no-cache
+      connection:
+      - keep-alive
+      host:
+      - api.rememberthemilk.com
+      user-agent:
+      - python-httpx/0.23.0 milky/0.1.0
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&format=json&method=rtm.auth.checkToken&v=2&api_sig=8c272eb5ce9f1a16be5da67430a43460
+  response:
+    body:
+      string: '{"rsp":{"stat":"fail","err":{"code":"98","msg":"Login failed / Invalid
+        auth token"}}}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 71a6c5615a33745b-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/javascript; charset=utf-8
+      Date:
+      - Mon, 13 Jun 2022 00:39:46 GMT
+      Expect-CT:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      vary:
+      - Accept-Encoding
+      x-s-t:
+      - 0 2
+    status:
+      code: 200
+      message: OK
+version: 1

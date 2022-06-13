@@ -40,14 +40,26 @@ class Transport:
         else:
             kwargs.setdefault('auth_token', self.token)
 
-        kwargs = self.sign_params(method=method, v=2, **kwargs)
+        kwargs.setdefault('v', 2)
+        is_json = kwargs.get('format') == 'json'
+
+        kwargs = self.sign_params(method=method, **kwargs)
 
         resp = self.client.get(self.REST_URL, params=kwargs, headers={"cache-control": "no-cache"})
         resp.raise_for_status()
 
-        result = ElementTree.fromstring(resp.text)
-        if result.get('stat') == 'fail':
-            err = result.find('err')
+        err = None
+
+        if is_json:
+            result = resp.json()
+            if result['rsp']['stat'] == 'fail':
+                err = result['rsp']['err']
+        else:
+            result = ElementTree.fromstring(resp.text)
+            if result.get('stat') == 'fail':
+                err = result.find('err')
+
+        if err is not None:
             raise ResponseError(int(err.get('code')), err.get('msg'))
 
         return result
