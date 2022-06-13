@@ -1,4 +1,6 @@
+import httpx
 import pytest
+import requests
 from milky.transport import Transport, ResponseError
 
 class TestTransport:
@@ -61,11 +63,15 @@ class TestTransport:
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         assert not r.authed
 
+    @pytest.mark.parametrize('client', [None, 'requests.Session', 'httpx.Client'])
     @pytest.mark.vcr(
         "TestTransport.test_bad_token.yaml",
     )
-    def test_bad_token_xml(self):
-        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+    def test_bad_token_xml(self, client):
+        if client is not None:
+            client = client.split('.')
+            client = getattr(__import__(client[0]), client[1])()
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN, client=client)
         with pytest.raises(ResponseError, match='98: Login failed / Invalid auth token') as e:
             r.invoke('rtm.auth.checkToken')
         assert e.value.code == 98

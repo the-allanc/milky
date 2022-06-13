@@ -12,6 +12,8 @@ httpx = "^0.23.0"
 pytest = "^5.2"
 pytest-recording = "^0.12.0"
 vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
+httpx = "^0.23.0"
+requests = "^2.28.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

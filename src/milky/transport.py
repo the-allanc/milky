@@ -1,9 +1,18 @@
 from xml.etree import ElementTree
 import hashlib
-import httpx
 import milky
 import urllib.parse
 import webbrowser
+
+_client_maker = lambda: None
+for _mod, _clazz in [('httpx', 'Client'), ('requests', 'Session')]:
+    try:
+        _client_maker = getattr(__import__(_mod), _clazz)
+        break
+    except ImportError:
+        pass # Try the next one.
+del _mod, _clazz
+
 
 class ResponseError(Exception):
 
@@ -28,9 +37,12 @@ class Transport:
         self._token = token
 
         if not client:
-            client = httpx.Client()
-            hdrs = client.headers
-            hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
+            if not (client := _client_maker()):
+                err = 'cannot import "httpx" or "requests" to create client'
+                raise RuntimeError(err)
+            
+        hdrs = client.headers
+        hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
         self.client = client
 
     def invoke(self, method, **kwargs):
