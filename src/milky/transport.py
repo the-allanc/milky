@@ -7,10 +7,11 @@ import webbrowser
 
 class ResponseError(Exception):
 
-    def __init__(self, code, message):
+    def __init__(self, response, code, message):
         super().__init__(code, message)
         self.code = code
         self.message = message
+        self.response = response
 
     def __str__(self):
         return f'{self.code}: {self.message}'
@@ -60,7 +61,7 @@ class Transport:
                 err = result.find('err')
 
         if err is not None:
-            raise ResponseError(int(err.get('code')), err.get('msg'))
+            raise ResponseError(result, int(err.get('code')), err.get('msg'))
 
         return result
 
