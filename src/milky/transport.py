@@ -62,13 +62,15 @@ class Transport:
         self.secret = secret
         self._token = token
 
+        # Try to create a client if one isn't given.
         if not client:
-            if not (client := _client_maker()):
+            if client := _client_maker():
+                hdrs = client.headers
+                hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
+            else:
                 err = 'cannot import "httpx" or "requests" to create client'
-                raise RuntimeError(err)
-            
-        hdrs = client.headers
-        hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
+                raise RuntimeError(err)            
+
         self.client = client
 
     def invoke(self, method, **kwargs):
