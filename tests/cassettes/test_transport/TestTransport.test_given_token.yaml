@@ -12,7 +12,7 @@ interactions:
     uri: https://api.rememberthemilk.com/services/rest/?api_key=c90238bdea098efa089dfa9bda082903&auth_token=23d0cfec20adf80e0dddcf395032851085005318&method=rtm.auth.checkToken&v=2&api_sig=b8dcbea776b6c1b7b338421a7c12bdd8
   response:
     body:
-      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><auth><token>9d2c973e7e1ddac5e0f7bf3e4662d09c5eb5092f</token><perms>write</perms><user
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><auth><token>23d0cfec20adf80e0dddcf395032851085005318</token><perms>write</perms><user
         id="7447825" username="milkymark" fullname="Milky Mark"/></auth></rsp>
     headers:
       CF-Cache-Status:

@@ -15,11 +15,18 @@ class TestTransport:
     @pytest.mark.vcr
     def test_desktop_auth(self):
         FROB = "85cfb0d6aece75f477f99c1afe4b8d006977244e"
-        SIG = "4c4d26f4445c2740b08b74f566560277"
+        SIG = "d61c462cdf39e5ceea5c30f4997cc19f"
         r = Transport(self.API_KEY, self.SECRET)
-        url = r.start_auth("write")
+        assert not r.authed
+        
+        url = r.start_auth("delete")
         r.finish_auth()
-        assert url == f"{self.AUTH_URL}&frob={FROB}&perms=write&api_sig={SIG}"
+        assert url == f"{self.AUTH_URL}&frob={FROB}&perms=delete&api_sig={SIG}"
+
+        # We should have the identity stored.
+        me = r.whoami
+        assert me.username == 'money.mark'
+        assert me.perms == 'delete'
 
     @pytest.mark.vcr
     def test_invalid_api_key(self):
@@ -40,6 +47,12 @@ class TestTransport:
         with pytest.raises(ResponseError, match="101: Invalid frob - did you authenticate?"):
             r.finish_auth()
 
+    @pytest.mark.vcr('TestTransport.test_bad_frob.yaml')
+    def test_bad_frob_authed(self):
+        r = Transport(self.API_KEY, self.SECRET)
+        r.start_auth()
+        assert not r.authed
+
     @pytest.mark.block_network
     def test_mobile_auth(self):
         SIG = "53a81b6a80e7f6319dd3f30b623a1f2c"
@@ -52,6 +65,12 @@ class TestTransport:
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         assert r.authed
 
+        # It should have the identity set.
+        me = r.whoami
+        assert str(me) == '"milkymark" with write permissions'
+        assert me.fullname == 'Milky Mark'
+        assert me.user_id == 7447825
+
     @pytest.mark.vcr
     def test_given_token_json(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
@@ -62,6 +81,7 @@ class TestTransport:
     def test_bad_token(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         assert not r.authed
+        assert r.whoami is None # shouldn't cause another request
 
     @pytest.mark.parametrize('client', [None, 'requests.Session', 'httpx.Client'])
     @pytest.mark.vcr(
@@ -84,6 +104,33 @@ class TestTransport:
             r.invoke('rtm.auth.checkToken', format='json')
         assert e.value.code == 98
         assert e.value.response['rsp']['stat'] == 'fail'
+
+    @pytest.mark.vcr(
+        "TestTransport.test_given_token.yaml",
+        "TestTransport.test_bad_token.yaml",
+    )
+    def test_whoami_cached(self):
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        me = r.whoami
+        assert me is not None
+        assert me is r.whoami # should be cached
+
+        # Deleting it should result in it being retrieved.
+        del r.whoami
+        me = r.whoami
+        assert me is None
+        assert r.whoami is None # still cached
+
+    @pytest.mark.vcr(
+        "TestTransport.test_given_token.yaml",
+        "TestTransport.test_bad_token.yaml",
+    )
+    def test_authed_nocache(self):
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+
+        # No caching in place.
+        assert r.authed
+        assert not r.authed
 
     @pytest.mark.vcr
     def test_invoke_with_token(self):
@@ -130,3 +177,34 @@ class TestTransport:
         r = Transport(self.API_KEY, self.SECRET)
         with pytest.raises(RuntimeError, match="token is required"):
             r.invoke("rtm.test.login")
+
+    @pytest.mark.vcr(
+        "TestTransport.test_given_token.yaml",
+        "TestTransport.test_desktop_auth.yaml",
+    )
+    def test_invalidate_cache_on_finish_auth(self):
+        r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
+        assert str(r.whoami) == '"milkymark" with write permissions'
+
+        r.start_auth("delete")
+        assert str(r.whoami) == '"money.mark" with delete permissions'
+
+
+    @pytest.mark.vcr(
+        "TestTransport.test_desktop_auth.yaml",
+        "TestTransport.test_given_token.yaml",
+    )
+    def test_invalidate_cache_on_set_token(self):
+        r = Transport(self.API_KEY, self.SECRET)
+        r.start_auth("delete")
+        assert str(r.whoami) == '"money.mark" with delete permissions'
+
+        r.token = self.TOKEN
+        assert str(r.whoami) == '"milkymark" with write permissions'
+
+    @pytest.mark.vcr("TestTransport.test_desktop_auth.yaml")
+    def test_authed_uses_finish_auth(self):
+        r = Transport(self.API_KEY, self.SECRET)
+        r.start_auth("delete")
+        assert r.authed
+        assert r.whoami.fullname == 'Money Mark'

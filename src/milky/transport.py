@@ -1,4 +1,7 @@
+from cached_property import cached_property
+from dataclasses import dataclass
 from xml.etree import ElementTree
+import contextlib
 import hashlib
 import milky
 import urllib.parse
@@ -25,6 +28,29 @@ class ResponseError(Exception):
     def __str__(self):
         return f'{self.code}: {self.message}'
 
+
+@dataclass(frozen=True)
+class Identity:
+    username: str
+    perms: str
+    user_id: int
+    fullname: str
+
+    def __str__(self):
+        return f'"{self.username}" with {self.perms} permissions'
+
+    @classmethod
+    def from_response(cls, resp):
+        u = resp.find('auth/user').attrib
+        return Identity(
+            perms=resp.find('auth/perms').text,
+            user_id=int(u['id']),
+            username=u['username'],
+            fullname=u['fullname'],
+        )
+
+
+
 class Transport:
 
     AUTH_URL = 'https://api.rememberthemilk.com/services/auth/'
@@ -48,7 +74,7 @@ class Transport:
     def invoke(self, method, **kwargs):
         if kwargs.get('auth_token') is False:
             del kwargs['auth_token']
-        elif not self._token:
+        elif not self.token:
             raise RuntimeError('token is required')
         else:
             kwargs.setdefault('auth_token', self.token)
@@ -85,33 +111,64 @@ class Transport:
         sig = hashlib.md5(payload.encode('utf-8')).hexdigest()
         return param_pairs + (('api_sig', sig),)
 
-    @property
-    def token(self):
+    def __autoauth(self):
         if (not self._token) and self.frob:
             self.finish_auth()
+            return True
+        return False
+
+    @property
+    def token(self):
+        self.__autoauth()
         return self._token
 
     @token.setter
     def token(self, value):
         self._token = value
-        del self.frob
+        with contextlib.suppress(AttributeError):
+            del self.frob
+        with contextlib.suppress(AttributeError):
+            del self.whoami
+
+    def __check_token(self):
+        if not self._token:
+            return None
+        try:
+            return self.invoke('rtm.auth.checkToken')
+        except ResponseError as e:
+            if e.code == 98:
+                return None
+            raise
+
+    @cached_property
+    def whoami(self):
+        # If auto-authentication kicked in, then the cached result
+        # will already be written.
+        if self.__autoauth():
+            return self.whoami
+        if token := self.__check_token():
+            return Identity.from_response(token)
 
     @property
     def authed(self):
-        if not self._token:
-            return False
+        # Handle the auto-authentication workflow.
         try:
-            self.invoke('rtm.auth.checkToken')
-            return True
+            if self.__autoauth():
+                return True
         except ResponseError as e:
-            if e.code == 98:
+            if e.code == 101: # Invalid or unauthenticated frob.
                 return False
             raise
+
+        res = self.__check_token()
+        self.whoami = Identity.from_response(res) if res else None
+        return bool(res)
 
     def start_auth(self, perms='read', open=False, webapp=False):
         params = {}
         if not webapp:
             rsp = self.invoke('rtm.auth.getFrob', auth_token=False)
+            self.token = None
             params['frob'] = self.frob = rsp.find('frob').text
 
         params = self.sign_params(perms=perms, **params)
@@ -127,6 +184,6 @@ class Transport:
     def finish_auth(self):
         if not self.frob:
             raise RuntimeError('must call start_auth first')
-        rsp = self.invoke('rtm.auth.getToken', frob=self.frob, auth_token=False)
-        self._token = rsp.find('auth/token').text
-        del self.frob
+        resp = self.invoke('rtm.auth.getToken', frob=self.frob, auth_token=False)
+        self.token = resp.find('auth/token').text
+        self.whoami = Identity.from_response(resp)
