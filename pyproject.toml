@@ -5,15 +5,25 @@ description = ""
 authors = ["Allan Crooks <allan@sixtyten.org>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-httpx = "^0.23.0"
+python = "~3.8"
+cached-property = "*"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
-pytest-recording = "^0.12.0"
+pytest = "*"
+pytest-recording = "*"
 vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
-httpx = "^0.23.0"
-requests = "^2.28.0"
+coverage = {extras = ["toml"], version = "*"}
+pytest-cov = "*"
+
+[tool.coverage.paths]
+source = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["milky"]
+
+[tool.coverage.report]
+show_missing = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

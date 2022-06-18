@@ -1,9 +1,19 @@
-import httpx
+try:
+    import httpx
+    has_httpx = True
+except ImportError:
+    has_httpx = False
+
+try:
+    import requests
+    has_requests = True
+except ImportError:
+    has_requests = False
+
 import pytest
-import requests
 from milky.transport import Transport, ResponseError
 
-class TestTransport:
+class Settings:
 
     # These are all made up, but they are used consistently across the
     # cassettes (which have been manually modified).
@@ -11,6 +21,36 @@ class TestTransport:
     SECRET = "b239dabcd9109e8f"
     TOKEN = "23d0cfec20adf80e0dddcf395032851085005318"
     AUTH_URL = f"https://api.rememberthemilk.com/services/auth/?api_key={API_KEY}"
+
+
+class TestClient(Settings):
+
+    @pytest.mark.skipif(not has_httpx, reason='needs httpx')
+    @pytest.mark.vcr('TestClient.test_server_error.yaml')
+    def test_server_error_httpx(self):
+        from httpx import HTTPStatusError
+        r = Transport(self.API_KEY, self.SECRET)
+        with pytest.raises(HTTPStatusError, match="Server error '500 Not OK'"):
+            r.start_auth()
+
+    @pytest.mark.skipif(not (has_requests and not has_httpx), reason='needs requests')
+    @pytest.mark.vcr('TestClient.test_server_error.yaml')
+    def test_server_error_requests(self):
+        from requests.exceptions import HTTPError
+        r = Transport(self.API_KEY, self.SECRET)
+        with pytest.raises(HTTPError, match="500 Server Error: Not OK"):
+            r.start_auth()
+
+
+    @pytest.mark.skipif(has_requests or has_httpx, reason='needs http lib installed')
+    @pytest.mark.block_network
+    def test_no_httplib(self):
+        with pytest.raises(RuntimeError, match='cannot import "httpx" or "requests" to create client'):
+            Transport(self.API_KEY, self.SECRET)
+
+
+@pytest.mark.skipif(not has_requests or not has_httpx, reason='needs http lib installed')
+class TestTransport(Settings):
 
     @pytest.mark.vcr
     def test_desktop_auth(self):
