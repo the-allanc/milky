@@ -13,12 +13,11 @@ for _mod, _clazz in [('httpx', 'Client'), ('requests', 'Session')]:
         _client_maker = getattr(__import__(_mod), _clazz)
         break
     except ImportError:
-        pass # Try the next one.
+        pass  # Try the next one.
 del _mod, _clazz
 
 
 class ResponseError(Exception):
-
     def __init__(self, response, code, message):
         super().__init__(code, message)
         self.code = code
@@ -50,7 +49,6 @@ class Identity:
         )
 
 
-
 class Transport:
 
     AUTH_URL = 'https://api.rememberthemilk.com/services/auth/'
@@ -69,7 +67,7 @@ class Transport:
                 hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
             else:
                 err = 'cannot import "httpx" or "requests" to create client'
-                raise RuntimeError(err)            
+                raise RuntimeError(err)
 
         self.client = client
 
@@ -86,7 +84,9 @@ class Transport:
 
         kwargs = self.sign_params(method=method, **kwargs)
 
-        resp = self.client.get(self.REST_URL, params=kwargs, headers={"cache-control": "no-cache"})
+        resp = self.client.get(
+            self.REST_URL, params=kwargs, headers={"cache-control": "no-cache"}
+        )
         resp.raise_for_status()
 
         err = None
@@ -154,7 +154,7 @@ class Transport:
             if self.__autoauth():
                 return True
         except ResponseError as e:
-            if e.code == 101: # Invalid or unauthenticated frob.
+            if e.code == 101:  # Invalid or unauthenticated frob.
                 return False
             raise
 
