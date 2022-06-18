@@ -93,6 +93,12 @@ class TestTransport(Settings):
         r.start_auth()
         assert not r.authed
 
+    @pytest.mark.vcr('TestTransport.test_bad_frob.yaml')
+    def test_bad_frob_whoami(self):
+        r = Transport(self.API_KEY, self.SECRET)
+        r.start_auth()
+        assert r.whoami is None
+
     @pytest.mark.block_network
     def test_mobile_auth(self):
         SIG = "53a81b6a80e7f6319dd3f30b623a1f2c"

@@ -144,12 +144,8 @@ class Transport:
 
     @cached_property
     def whoami(self):
-        # If auto-authentication kicked in, then the cached result
-        # will already be written.
-        if self.__autoauth():
-            return self.whoami
-        if token := self.__check_token():
-            return Identity.from_response(token)
+        # If true, evaluating self.authed will set the whoami object.
+        return self.whoami if self.authed else None
 
     @property
     def authed(self):
