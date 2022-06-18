@@ -1,2 +1,3 @@
-poetry.lock
+.coverage
 __pycache__
+poetry.lock

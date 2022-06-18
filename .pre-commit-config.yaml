@@ -1,0 +1,14 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-toml
+    -   id: check-yaml
+    -   id: file-contents-sorter
+        files: .gitignore
+-   repo: https://github.com/psf/black
+    rev: "22.3.0"
+    hooks:
+    -   id: black
