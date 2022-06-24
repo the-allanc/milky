@@ -1,11 +1,13 @@
-from cached_property import cached_property
-from dataclasses import dataclass
-from xml.etree import ElementTree
 import contextlib
 import hashlib
-import milky
 import urllib.parse
 import webbrowser
+from dataclasses import dataclass
+from xml.etree import ElementTree
+
+from cached_property import cached_property
+
+import milky
 
 
 def _client_maker():

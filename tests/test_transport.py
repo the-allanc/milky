@@ -1,7 +1,8 @@
-import pytest
 import types
 
-from milky.transport import Transport, ResponseError
+import pytest
+
+from milky.transport import ResponseError, Transport
 
 has_ = types.SimpleNamespace()
 
