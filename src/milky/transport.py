@@ -7,14 +7,17 @@ import milky
 import urllib.parse
 import webbrowser
 
-_client_maker = lambda: None
-for _mod, _clazz in [('httpx', 'Client'), ('requests', 'Session')]:
-    try:
-        _client_maker = getattr(__import__(_mod), _clazz)
-        break
-    except ImportError:
-        pass  # Try the next one.
-del _mod, _clazz
+
+def _client_maker():
+    with contextlib.suppress(ImportError):
+        import httpx
+
+        return httpx.Client(follow_redirects=True)
+
+    with contextlib.suppress(ImportError):
+        import requests
+
+        return requests.Session()
 
 
 class ResponseError(Exception):
@@ -89,6 +92,10 @@ class Transport:
         )
         resp.raise_for_status()
 
+        return self._process_response(resp, is_json)
+
+    @classmethod
+    def process_response(cls, resp, is_json):
         err = None
 
         if is_json:

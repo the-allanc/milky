@@ -19,7 +19,7 @@ def tests(session, clientlibs):
     session.run("pytest", "--cov")
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def lint(session):
     session.install(
         'flakeheaven',

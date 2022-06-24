@@ -1,19 +1,17 @@
-try:
-    import httpx
-
-    has_httpx = True
-except ImportError:
-    has_httpx = False
-
-try:
-    import requests
-
-    has_requests = True
-except ImportError:
-    has_requests = False
-
 import pytest
+import types
+
 from milky.transport import Transport, ResponseError
+
+has_ = types.SimpleNamespace()
+
+for module in ['requests', 'httpx']:
+    try:
+        __import__(module)
+        setattr(has_, module, True)
+    except ImportError:
+        setattr(has_, module, False)
+del module, types
 
 
 class Settings:
@@ -27,7 +25,8 @@ class Settings:
 
 
 class TestClient(Settings):
-    @pytest.mark.skipif(not has_httpx, reason='needs httpx')
+    @pytest.mark.skipif(not has_.httpx, reason='needs httpx')
+    @pytest.mark.skipif(has_.requests, reason='requests is installed')
     @pytest.mark.vcr('TestClient.test_server_error.yaml')
     def test_server_error_httpx(self):
         from httpx import HTTPStatusError
@@ -36,7 +35,8 @@ class TestClient(Settings):
         with pytest.raises(HTTPStatusError, match="Server error '500 Not OK'"):
             r.start_auth()
 
-    @pytest.mark.skipif(not (has_requests and not has_httpx), reason='needs requests')
+    @pytest.mark.skipif(not has_.requests, reason='needs requests')
+    @pytest.mark.skipif(has_.httpx, reason='httpx is installed')
     @pytest.mark.vcr('TestClient.test_server_error.yaml')
     def test_server_error_requests(self):
         from requests.exceptions import HTTPError
@@ -45,7 +45,7 @@ class TestClient(Settings):
         with pytest.raises(HTTPError, match="500 Server Error: Not OK"):
             r.start_auth()
 
-    @pytest.mark.skipif(has_requests or has_httpx, reason='needs http lib installed')
+    @pytest.mark.skipif(has_.requests or has_.httpx, reason='needs no http lib')
     @pytest.mark.block_network
     def test_no_httplib(self):
         with pytest.raises(
@@ -54,9 +54,7 @@ class TestClient(Settings):
             Transport(self.API_KEY, self.SECRET)
 
 
-@pytest.mark.skipif(
-    not has_requests or not has_httpx, reason='needs http lib installed'
-)
+@pytest.mark.skipif(not (has_.requests or has_.httpx), reason='needs http lib')
 class TestTransport(Settings):
     @pytest.mark.vcr
     def test_desktop_auth(self):
@@ -137,6 +135,8 @@ class TestTransport(Settings):
         assert not r.authed
         assert r.whoami is None  # shouldn't cause another request
 
+    @pytest.mark.skipif(not has_.requests, reason='needs requests')
+    @pytest.mark.skipif(not has_.httpx, reason='needs httpx')
     @pytest.mark.parametrize('client', [None, 'requests.Session', 'httpx.Client'])
     @pytest.mark.vcr(
         "TestTransport.test_bad_token.yaml",
