@@ -28,6 +28,31 @@ show_missing = true
 [tool.black]
 skip-string-normalization = true
 
+[tool.flakeheaven.plugins]
+pycodestyle = ["+*"]
+pyflakes = ["+*"]
+mccabe = ["+*"]
+pylint = ["+*"]
+flake8-bugbear = ["+*"]
+flake8-warnings = ["+*"]
+dlint = ["+*"]
+flake8-pie = ["+*"]
+flake8-simplify = ["+*"]
+flake8-comprehensions = ["+*"]
+flake8-use-fstring = ["+*"]
+flake8-cognitive-complexity = ["+*"]
+flake8-executable = ["+*"]
+flake8-expression-complexity = ["+*"]
+flake8-noqa = ["+*"]
+
+[tool.flakeheaven.exceptions."tests/"]
+flake8-docstrings = ["-*"]
+
+[tool.flakeheaven]
+format = "grouped"
+show_source = true
+extend_select = ["B9"]
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
