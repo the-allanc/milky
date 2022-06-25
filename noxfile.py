@@ -1,4 +1,8 @@
+import tempfile
+
 import nox
+
+nox.options.sessions = "tests", "lint", "safety"
 
 
 @nox.session
@@ -23,6 +27,7 @@ def tests(session, clientlibs):
 def lint(session):
     session.install(
         'flakeheaven',
+        'flake8-bandit',
         'flake8-bugbear',
         'flake8-warnings',
         'dlint',
@@ -53,3 +58,19 @@ def lint(session):
     # compatible with how flakeheaven works.
     session.run('flakeheaven', 'lint', 'src', 'tests', 'noxfile.py')
     session.run('flake8', '--select=NQA0', 'src', 'tests', 'noxfile.py')
+
+
+@nox.session
+def safety(session):
+    with tempfile.NamedTemporaryFile() as requirements:
+        session.run(
+            "poetry",
+            "export",
+            "--dev",
+            "--format=requirements.txt",
+            "--without-hashes",
+            f"--output={requirements.name}",
+            external=True,
+        )
+        session.install("safety")
+        session.run("safety", "check", f"--file={requirements.name}", "--full-report")
