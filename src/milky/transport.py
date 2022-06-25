@@ -3,9 +3,13 @@ import hashlib
 import urllib.parse
 import webbrowser
 from dataclasses import dataclass
-from xml.etree import ElementTree
 
 from cached_property import cached_property
+try:
+    from defusedxml.etree import ElementTree
+except ImportError:
+    from xml.etree import ElementTree  # noqa: DUO107
+
 
 import milky
 
@@ -40,9 +44,6 @@ class Identity:
     user_id: int
     fullname: str
 
-    def __str__(self):
-        return f'"{self.username}" with {self.perms} permissions'
-
     @classmethod
     def from_response(cls, resp):
         u = resp.find('auth/user').attrib
@@ -52,6 +53,9 @@ class Identity:
             username=u['username'],
             fullname=u['fullname'],
         )
+
+    def __str__(self):
+        return f'"{self.username}" with {self.perms} permissions'
 
 
 class Transport:
@@ -94,7 +98,7 @@ class Transport:
         )
         resp.raise_for_status()
 
-        return self._process_response(resp, is_json)
+        return self.process_response(resp, is_json)
 
     @classmethod
     def process_response(cls, resp, is_json):

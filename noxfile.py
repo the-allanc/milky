@@ -7,11 +7,11 @@ nox.options.sessions = "tests", "lint", "safety"
 
 @nox.session
 @nox.parametrize(
-    'python,clientlibs',
+    'python,extralibs',
     [
         ('3.8', []),
         ('3.8', ['httpx']),
-        ('3.8', ['requests']),
+        ('3.8', ['requests', 'defusedxml']),
         ('3.8', ['requests', 'httpx']),
         ('3.10', ['httpx']),
     ],

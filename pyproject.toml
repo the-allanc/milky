@@ -14,6 +14,7 @@ pytest-recording = "*"
 vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
 coverage = {extras = ["toml"], version = "*"}
 pytest-cov = "*"
+defusedxml = "*"
 
 [tool.coverage.paths]
 source = ["src"]
