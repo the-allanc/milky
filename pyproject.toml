@@ -16,6 +16,7 @@ pytest-cov = "*"
 requests = "*"
 httpx = "*"
 defusedxml = "*"
+mypy = "^0.961"
 
 [tool.coverage.paths]
 source = ["src"]
@@ -55,6 +56,12 @@ flake8-docstrings = ["-*"]
 format = "grouped"
 show_source = true
 extend_select = ["B9"]
+
+[tool.mypy]
+
+[[tool.mypy.overrides]]
+module = "defusedxml.etree"
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

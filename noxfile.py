@@ -69,3 +69,14 @@ def safety(session):
     reqs = session.poetry.export_requirements()
     session.install("safety")
     session.run("safety", "check", f"--file={reqs}", "--full-report")
+
+
+@session(reuse_venv=True)
+def mypy(session):
+    # Using pip to install, rather than Poetry:
+    #   https://github.com/python-poetry/poetry/issues/5193
+    reqs = session.poetry.export_requirements()
+    session.install('-r', str(reqs))
+    session.install('types-requests')
+    args = session.posargs or ['src/']
+    session.run("mypy", *args)

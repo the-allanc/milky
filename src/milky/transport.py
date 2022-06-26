@@ -5,11 +5,22 @@ import webbrowser
 from dataclasses import dataclass
 from functools import cached_property
 
+from typing_extensions import TypeAlias
+
 try:
     from defusedxml.etree import ElementTree
 except ImportError:
     from xml.etree import ElementTree  # noqa: DUO107
 
+from typing import Any, Dict, Optional, Sequence, Tuple, TYPE_CHECKING, Union
+
+if TYPE_CHECKING:
+    import httpx, requests
+
+    Response = Union[requests.models.Response, httpx.Response]
+    Element: TypeAlias = ElementTree.Element
+    ResponseContent = Union[Element, Dict[str, Any]]
+    Client = Union[requests.Session, httpx.Client]
 
 import milky
 
@@ -27,7 +38,7 @@ def _client_maker():
 
 
 class ResponseError(Exception):
-    def __init__(self, response, code, message):
+    def __init__(self, response: Response, code: int, message: str):
         super().__init__(code, message)
         self.code = code
         self.message = message
@@ -45,7 +56,7 @@ class Identity:
     fullname: str
 
     @classmethod
-    def from_response(cls, resp):
+    def from_response(cls, resp: Element):
         u = resp.find('auth/user').attrib
         return Identity(
             perms=resp.find('auth/perms').text,
@@ -64,7 +75,13 @@ class Transport:
     REST_URL = 'https://api.rememberthemilk.com/services/rest/'
     frob = None
 
-    def __init__(self, api_key, secret, token=None, client=None):
+    def __init__(
+        self,
+        api_key: str,
+        secret: str,
+        token: Optional[str] = None,
+        client: Optional[Client] = None,
+    ):
         self.api_key = api_key
         self.secret = secret
         self._token = token
@@ -80,7 +97,7 @@ class Transport:
 
         self.client = client
 
-    def invoke(self, method, **kwargs):
+    def invoke(self, method: str, **kwargs: Union[str, int, bool]) -> ResponseContent:
         if kwargs.get('auth_token') is False:
             del kwargs['auth_token']
         elif not self.token:
@@ -91,17 +108,17 @@ class Transport:
         kwargs.setdefault('v', 2)
         is_json = kwargs.get('format') == 'json'
 
-        kwargs = self.sign_params(method=method, **kwargs)
+        params = self.sign_params(method=method, **kwargs)
 
         resp = self.client.get(
-            self.REST_URL, params=kwargs, headers={"cache-control": "no-cache"}
+            self.REST_URL, params=params, headers={"cache-control": "no-cache"}
         )
         resp.raise_for_status()
 
         return self.process_response(resp, is_json)
 
     @classmethod
-    def process_response(cls, resp, is_json):
+    def process_response(cls, resp: Response, is_json: bool) -> ResponseContent:
         err = None
 
         if is_json:
@@ -118,7 +135,9 @@ class Transport:
 
         return result
 
-    def sign_params(self, **params):
+    def sign_params(
+        self, **params: Union[str, int]
+    ) -> Sequence[Tuple[str, Union[str, int]]]:
         params.setdefault('api_key', self.api_key)
         param_pairs = tuple(sorted(params.items()))
         paramstr = ''.join(f'{k}{v}' for (k, v) in param_pairs)
@@ -126,26 +145,26 @@ class Transport:
         sig = hashlib.md5(payload.encode('utf-8')).hexdigest()
         return param_pairs + (('api_sig', sig),)
 
-    def __autoauth(self):
+    def __autoauth(self) -> bool:
         if (not self._token) and self.frob:
             self.finish_auth()
             return True
         return False
 
     @property
-    def token(self):
+    def token(self) -> Optional[str]:
         self.__autoauth()
         return self._token
 
     @token.setter
-    def token(self, value):
+    def token(self, value: str):
         self._token = value
         with contextlib.suppress(AttributeError):
             del self.frob
         with contextlib.suppress(AttributeError):
             del self.whoami
 
-    def __check_token(self):
+    def __check_token(self) -> Optional[Element]:
         if not self._token:
             return None
         try:
@@ -156,12 +175,12 @@ class Transport:
             raise
 
     @cached_property
-    def whoami(self):
+    def whoami(self) -> Optional[Identity]:
         # If true, evaluating self.authed will set the whoami object.
         return self.whoami if self.authed else None
 
     @property
-    def authed(self):
+    def authed(self) -> bool:
         # Handle the auto-authentication workflow.
         try:
             if self.__autoauth():
@@ -175,15 +194,17 @@ class Transport:
         self.whoami = Identity.from_response(res) if res else None
         return bool(res)
 
-    def start_auth(self, perms='read', open=False, webapp=False):
+    def start_auth(
+        self, perms: str = 'read', open: bool = False, webapp: bool = False
+    ) -> str:
         params = {}
         if not webapp:
-            rsp = self.invoke('rtm.auth.getFrob', auth_token=False)
+            rsp: Element = self.invoke('rtm.auth.getFrob', auth_token=False)
             self.token = None
             params['frob'] = self.frob = rsp.find('frob').text
 
-        params = self.sign_params(perms=perms, **params)
-        url = self.AUTH_URL + '?' + urllib.parse.urlencode(params)
+        param_pairs = self.sign_params(perms=perms, **params)
+        url = self.AUTH_URL + '?' + urllib.parse.urlencode(param_pairs)
 
         if open:
             if webapp:
@@ -192,9 +213,11 @@ class Transport:
 
         return url
 
-    def finish_auth(self):
+    def finish_auth(self) -> None:
         if not self.frob:
             raise RuntimeError('must call start_auth first')
-        resp = self.invoke('rtm.auth.getToken', frob=self.frob, auth_token=False)
+        resp: Element = self.invoke(
+            'rtm.auth.getToken', frob=self.frob, auth_token=False
+        )
         self.token = resp.find('auth/token').text
         self.whoami = Identity.from_response(resp)
