@@ -3,8 +3,8 @@ import hashlib
 import urllib.parse
 import webbrowser
 from dataclasses import dataclass
+from functools import cached_property
 
-from cached_property import cached_property
 try:
     from defusedxml.etree import ElementTree
 except ImportError:
