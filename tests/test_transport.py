@@ -49,9 +49,8 @@ class TestClient(Settings):
     @pytest.mark.skipif(has_.requests or has_.httpx, reason='needs no http lib')
     @pytest.mark.block_network
     def test_no_httplib(self):
-        with pytest.raises(
-            RuntimeError, match='cannot import "httpx" or "requests" to create client'
-        ):
+        msg = 'cannot import "httpx" or "requests" to create client'
+        with pytest.raises(RuntimeError, match=msg):
             Transport(self.API_KEY, self.SECRET)
 
 
@@ -59,14 +58,14 @@ class TestClient(Settings):
 class TestTransport(Settings):
     @pytest.mark.vcr
     def test_desktop_auth(self):
-        FROB = "85cfb0d6aece75f477f99c1afe4b8d006977244e"
-        SIG = "d61c462cdf39e5ceea5c30f4997cc19f"
+        frob = "85cfb0d6aece75f477f99c1afe4b8d006977244e"
+        sig = "d61c462cdf39e5ceea5c30f4997cc19f"
         r = Transport(self.API_KEY, self.SECRET)
         assert not r.authed
 
         url = r.start_auth("delete")
         r.finish_auth()
-        assert url == f"{self.AUTH_URL}&frob={FROB}&perms=delete&api_sig={SIG}"
+        assert url == f"{self.AUTH_URL}&frob={frob}&perms=delete&api_sig={sig}"
 
         # We should have the identity stored.
         me = r.whoami
@@ -108,10 +107,10 @@ class TestTransport(Settings):
 
     @pytest.mark.block_network
     def test_mobile_auth(self):
-        SIG = "53a81b6a80e7f6319dd3f30b623a1f2c"
+        sig = "53a81b6a80e7f6319dd3f30b623a1f2c"
         r = Transport(self.API_KEY, self.SECRET)
         url = r.start_auth(perms="delete", webapp=True)
-        assert url == f"{self.AUTH_URL}&perms=delete&api_sig={SIG}"
+        assert url == f"{self.AUTH_URL}&perms=delete&api_sig={sig}"
 
     @pytest.mark.vcr
     def test_given_token(self):
@@ -139,9 +138,7 @@ class TestTransport(Settings):
     @pytest.mark.skipif(not has_.requests, reason='needs requests')
     @pytest.mark.skipif(not has_.httpx, reason='needs httpx')
     @pytest.mark.parametrize('client', [None, 'requests.Session', 'httpx.Client'])
-    @pytest.mark.vcr(
-        "TestTransport.test_bad_token.yaml",
-    )
+    @pytest.mark.vcr("TestTransport.test_bad_token.yaml")
     def test_bad_token_xml(self, client):
         if client is not None:
             client = client.split('.')
