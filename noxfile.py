@@ -4,6 +4,8 @@ from nox_poetry import session
 nox.options.sessions = "tests", "lint", "safety"
 nox.options.stop_on_first_error = True
 
+locations = 'src', 'tests', 'noxfile'
+
 
 @session
 @nox.parametrize(
@@ -46,8 +48,8 @@ def lint(session):
     # The two aren't compatible with each other since flake8-noqa tries
     # to override the file checker in flake8 in a way that isn't
     # compatible with how flakeheaven works.
-    session.run('flakeheaven', 'lint', 'src', 'tests', 'noxfile.py')
-    session.run('flake8', '--select=NQA0', 'src', 'tests', 'noxfile.py')
+    session.run('flakeheaven', 'lint', *locations)
+    session.run('flake8', '--select=NQA0', *locations)
 
 
 @session
