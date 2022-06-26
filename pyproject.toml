@@ -5,7 +5,7 @@ description = ""
 authors = ["Allan Crooks <allan@sixtyten.org>"]
 
 [tool.poetry.dependencies]
-python = ">= 3.8"
+python = ">= 3.8, < 4"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -17,6 +17,24 @@ requests = "*"
 httpx = "*"
 defusedxml = "*"
 mypy = "^0.961"
+flakeheaven = "^2.0.0"
+flake8-bugbear = "^22.6.22"
+flake8-warnings = "^0.2.1"
+flake8-executable = "^2.1.1"
+dlint = "^0.12.0"
+flake8-bandit = "^3.0.0"
+flake8-simplify = "^0.19.2"
+flake8-comprehensions = "^3.10.0"
+flake8-use-fstring = "^1.3"
+flake8-expression-complexity = "^0.0.11"
+flake8-noqa = "^1.2.5"
+flake8-annotations = "^2.9.0"
+flake8-future-annotations = "^0.0.5"
+flake8-type-checking = "^2.0.1"
+flake8-typing-imports = "^1.12.0"
+flake8-pie = "^0.15.0"
+flake8-cognitive-complexity = "^0.1.0"
+yesqa = "^1.3.0"
 
 [tool.coverage.paths]
 source = ["src"]
@@ -39,7 +57,7 @@ pylint = ["+*"]
 flake8-bugbear = ["+*"]
 flake8-warnings = ["+*"]
 dlint = ["+*"]
-flake8-bandit = ["+*"]
+flake8-bandit = ["+*", "-S101"]
 flake8-pie = ["+*"]
 flake8-simplify = ["+*"]
 flake8-comprehensions = ["+*"]
@@ -48,9 +66,17 @@ flake8-cognitive-complexity = ["+*"]
 flake8-executable = ["+*"]
 flake8-expression-complexity = ["+*"]
 flake8-noqa = ["+*"]
+flake8-annotations  = ["+*", "-ANN1*"]
+flake8-future-annotations = ["+*"]
+flake8-type-checking = ["+*"]
+flake8-typing-imports = ["+*"]
 
 [tool.flakeheaven.exceptions."tests/"]
 flake8-docstrings = ["-*"]
+flake8-annotations = ["-*"]
+
+[tool.flakeheaven.exceptions."noxfile.py"]
+flake8-annotations =  ["-*"]
 
 [tool.flakeheaven]
 format = "grouped"

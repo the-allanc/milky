@@ -20,8 +20,8 @@ class Settings:
     # These are all made up, but they are used consistently across the
     # cassettes (which have been manually modified).
     API_KEY = "c90238bdea098efa089dfa9bda082903"
-    SECRET = "b239dabcd9109e8f"
-    TOKEN = "23d0cfec20adf80e0dddcf395032851085005318"
+    SECRET = "b239dabcd9109e8f"  # noqa: S105
+    TOKEN = "23d0cfec20adf80e0dddcf395032851085005318"  # noqa: S105
     AUTH_URL = f"https://api.rememberthemilk.com/services/auth/?api_key={API_KEY}"
 
 

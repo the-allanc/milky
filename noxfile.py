@@ -29,22 +29,8 @@ def tests(session, extralibs):
 
 @session(reuse_venv=True)
 def lint(session):
-    session.install(
-        'flakeheaven',
-        'flake8-bandit',
-        'flake8-bugbear',
-        'flake8-warnings',
-        'dlint',
-        'flake8-pie',
-        'flake8-simplify',
-        'flake8-comprehensions',
-        'flake8-use-fstring',
-        'flake8-cognitive-complexity',
-        'flake8-executable',
-        'flake8-expression-complexity',
-        'flake8-noqa',
-        'yesqa',
-    )
+    reqs = session.poetry.export_requirements()
+    session.install('-r', str(reqs))
 
     # We want to reuse the same environment, so this is the hack
     # to achieve that.

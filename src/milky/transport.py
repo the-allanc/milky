@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextlib
 import hashlib
 import urllib.parse
@@ -5,17 +7,17 @@ import webbrowser
 from dataclasses import dataclass
 from functools import cached_property
 
-from typing_extensions import TypeAlias
-
 try:
     from defusedxml.etree import ElementTree
 except ImportError:
-    from xml.etree import ElementTree  # noqa: DUO107
+    from xml.etree import ElementTree  # noqa: DUO107, S405
 
 from typing import Any, Dict, Optional, Sequence, Tuple, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    import httpx, requests
+    import httpx
+    import requests
+    from typing_extensions import TypeAlias
 
     Response = Union[requests.models.Response, httpx.Response]
     Element: TypeAlias = ElementTree.Element
@@ -25,7 +27,7 @@ if TYPE_CHECKING:
 import milky
 
 
-def _client_maker():
+def _client_maker() -> Client:
     with contextlib.suppress(ImportError):
         import httpx
 
@@ -38,13 +40,13 @@ def _client_maker():
 
 
 class ResponseError(Exception):
-    def __init__(self, response: Response, code: int, message: str):
+    def __init__(self, response: Response, code: int, message: str) -> ...:
         super().__init__(code, message)
         self.code = code
         self.message = message
         self.response = response
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.code}: {self.message}'
 
 
@@ -56,7 +58,7 @@ class Identity:
     fullname: str
 
     @classmethod
-    def from_response(cls, resp: Element):
+    def from_response(cls, resp: Element) -> Identity:
         u = resp.find('auth/user').attrib
         return Identity(
             perms=resp.find('auth/perms').text,
@@ -65,7 +67,7 @@ class Identity:
             fullname=u['fullname'],
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'"{self.username}" with {self.perms} permissions'
 
 
@@ -81,7 +83,7 @@ class Transport:
         secret: str,
         token: Optional[str] = None,
         client: Optional[Client] = None,
-    ):
+    ) -> ...:
         self.api_key = api_key
         self.secret = secret
         self._token = token
@@ -126,7 +128,7 @@ class Transport:
             if result['rsp']['stat'] == 'fail':
                 err = result['rsp']['err']
         else:
-            result = ElementTree.fromstring(resp.text)
+            result = ElementTree.fromstring(resp.text)  # noqa: S314
             if result.get('stat') == 'fail':
                 err = result.find('err')
 
@@ -142,7 +144,7 @@ class Transport:
         param_pairs = tuple(sorted(params.items()))
         paramstr = ''.join(f'{k}{v}' for (k, v) in param_pairs)
         payload = f'{self.secret}{paramstr}'
-        sig = hashlib.md5(payload.encode('utf-8')).hexdigest()
+        sig = hashlib.md5(payload.encode('utf-8')).hexdigest()  # noqa: S303
         return param_pairs + (('api_sig', sig),)
 
     def __autoauth(self) -> bool:
@@ -157,7 +159,7 @@ class Transport:
         return self._token
 
     @token.setter
-    def token(self, value: str):
+    def token(self, value: str) -> ...:
         self._token = value
         with contextlib.suppress(AttributeError):
             del self.frob
