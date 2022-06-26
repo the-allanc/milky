@@ -1,11 +1,13 @@
 import tempfile
 
 import nox
+from nox_poetry import session
 
 nox.options.sessions = "tests", "lint", "safety"
+nox.options.stop_on_first_error = True
 
 
-@nox.session
+@session
 @nox.parametrize(
     'python,extralibs',
     [
@@ -16,14 +18,18 @@ nox.options.sessions = "tests", "lint", "safety"
         ('3.10', ['httpx']),
     ],
 )
-def tests(session, clientlibs):
-    session.run("poetry", "install", external=True)
-    for lib in clientlibs:
-        session.run("pip", "install", lib)
+def tests(session, extralibs):
+    session.install(".")
+    session.install(
+        "vcrpy @ git+https://github.com/the-allanc/vcrpy.git@httpx-cassette-compatibility"
+    )
+    session.install("pytest", "pytest-cov", "pytest-recording")
+    if extralibs:
+        session.install(*extralibs)
     session.run("pytest", "--cov")
 
 
-@nox.session(reuse_venv=True)
+@session(reuse_venv=True)
 def lint(session):
     session.install(
         'flakeheaven',
@@ -60,7 +66,7 @@ def lint(session):
     session.run('flake8', '--select=NQA0', 'src', 'tests', 'noxfile.py')
 
 
-@nox.session
+@session
 def safety(session):
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
