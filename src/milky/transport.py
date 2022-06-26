@@ -20,14 +20,14 @@ if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
     Response = Union[requests.models.Response, httpx.Response]
-    Element: TypeAlias = ElementTree.Element
+    Element: TypeAlias = ElementTree.Element  # pytype: disable=invalid-annotation
     ResponseContent = Union[Element, Dict[str, Any]]
     Client = Union[requests.Session, httpx.Client]
 
 import milky
 
 
-def _client_maker() -> Client:
+def _client_maker() -> Optional[Client]:
     with contextlib.suppress(ImportError):
         import httpx
 
@@ -38,9 +38,11 @@ def _client_maker() -> Client:
 
         return requests.Session()
 
+    return None
+
 
 class ResponseError(Exception):
-    def __init__(self, response: Response, code: int, message: str) -> ...:
+    def __init__(self, response: Response, code: int, message: str) -> None:
         super().__init__(code, message)
         self.code = code
         self.message = message
@@ -83,19 +85,24 @@ class Transport:
         secret: str,
         token: Optional[str] = None,
         client: Optional[Client] = None,
-    ) -> ...:
+    ) -> None:
         self.api_key = api_key
         self.secret = secret
         self._token = token
 
         # Try to create a client if one isn't given.
         if not client:
-            if client := _client_maker():
-                hdrs = client.headers
-                hdrs['User-Agent'] = f"{hdrs['User-Agent']} milky/{milky.__version__}"
-            else:
+            if not (client := _client_maker()):
                 err = 'cannot import "httpx" or "requests" to create client'
                 raise RuntimeError(err)
+
+            hdrs = client.headers
+            our_ua = hdrs['User-Agent']
+            my_ua = f" milky/{milky.__version__}"
+
+            if isinstance(our_ua, bytes):
+                our_ua = our_ua.decode('utf-8')
+            hdrs['User-Agent'] = our_ua + my_ua
 
         self.client = client
 
@@ -113,7 +120,7 @@ class Transport:
         params = self.sign_params(method=method, **kwargs)
 
         resp = self.client.get(
-            self.REST_URL, params=params, headers={"cache-control": "no-cache"}
+            self.REST_URL, params=dict(params), headers={"cache-control": "no-cache"}
         )
         resp.raise_for_status()
 
@@ -159,7 +166,7 @@ class Transport:
         return self._token
 
     @token.setter
-    def token(self, value: str) -> ...:
+    def token(self, value: str) -> None:
         self._token = value
         with contextlib.suppress(AttributeError):
             del self.frob

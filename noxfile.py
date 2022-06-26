@@ -1,7 +1,7 @@
 import nox
 from nox_poetry import session
 
-nox.options.sessions = "tests", "lint", "safety"
+nox.options.sessions = "tests", "lint", "mypy", "safety"
 nox.options.stop_on_first_error = True
 
 locations = 'src', 'tests', 'noxfile'
@@ -68,3 +68,4 @@ def mypy(session):
     session.install('types-requests')
     args = session.posargs or ['src/']
     session.run("mypy", *args)
+    session.run("pytype", "--disable=import-error", *args)
