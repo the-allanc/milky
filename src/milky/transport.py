@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import os
 import urllib.parse
 import webbrowser
 from dataclasses import dataclass
@@ -14,6 +15,10 @@ except ImportError:
 
 from typing import Any, Dict, Optional, Sequence, Tuple, TYPE_CHECKING, Union
 
+import milky
+
+TYPE_CHECKING = TYPE_CHECKING or os.environ.get('TYPE_CHECKING') == '1'
+
 if TYPE_CHECKING:
     import httpx
     import requests
@@ -23,8 +28,6 @@ if TYPE_CHECKING:
     Element: TypeAlias = ElementTree.Element  # pytype: disable=invalid-annotation
     ResponseContent = Union[Element, Dict[str, Any]]
     Client = Union[requests.Session, httpx.Client]
-
-import milky
 
 
 def _client_maker() -> Optional[Client]:
@@ -42,7 +45,7 @@ def _client_maker() -> Optional[Client]:
 
 
 class ResponseError(Exception):
-    def __init__(self, response: Response, code: int, message: str) -> None:
+    def __init__(self, response: ResponseContent, code: int, message: str) -> None:
         super().__init__(code, message)
         self.code = code
         self.message = message
@@ -166,7 +169,7 @@ class Transport:
         return self._token
 
     @token.setter
-    def token(self, value: str) -> None:
+    def token(self, value: Optional[str]) -> None:
         self._token = value
         with contextlib.suppress(AttributeError):
             del self.frob

@@ -23,10 +23,17 @@ def tests(session, extralibs):
     session.install(
         "vcrpy @ git+https://github.com/the-allanc/vcrpy.git@httpx-cassette-compatibility"
     )
-    session.install("pytest", "pytest-cov", "pytest-recording")
+    session.install(
+        "pytest", "pytest-cov", "pytest-recording", "typeguard", "typing_extensions"
+    )
     if extralibs:
         session.install(*extralibs)
-    session.run("pytest", "--cov")
+
+    args = ["pytest", "--cov"]
+    if extralibs == ['requests', 'httpx']:
+        args.append("--typeguard-packages=milky")
+        session.env['TYPE_CHECKING'] = '1'
+    session.run(*args)
 
 
 @session(reuse_venv=True)

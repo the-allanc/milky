@@ -36,6 +36,8 @@ flake8-pie = "^0.15.0"
 flake8-cognitive-complexity = "^0.1.0"
 yesqa = "^1.3.0"
 pytype = "^2022.6.23"
+typeguard = "^2.13.3"
+typing-extensions = "^4.2.0"
 
 [tool.coverage.paths]
 source = ["src"]
