@@ -38,6 +38,7 @@ yesqa = "^1.3.0"
 pytype = "^2022.6.23"
 typeguard = "^2.13.3"
 typing-extensions = "^4.2.0"
+flake8-docstrings = "^1.6.0"
 
 [tool.coverage.paths]
 source = ["src"]
@@ -58,6 +59,7 @@ pyflakes = ["+*"]
 mccabe = ["+*"]
 pylint = ["+*"]
 flake8-bugbear = ["+*"]
+flake8-docstrings = ["+*", "-D105"]
 flake8-warnings = ["+*"]
 dlint = ["+*"]
 flake8-bandit = ["+*", "-S101"]
@@ -85,6 +87,7 @@ flake8-annotations =  ["-*"]
 format = "grouped"
 show_source = true
 extend_select = ["B9"]
+docstring_convention = "google"
 
 [tool.mypy]
 

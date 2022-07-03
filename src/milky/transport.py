@@ -1,3 +1,5 @@
+"""Logic to communicate with Remember The Milk's API."""
+
 from __future__ import annotations
 
 import contextlib
@@ -45,7 +47,11 @@ def _client_maker() -> Optional[Client]:
 
 
 class ResponseError(Exception):
-    def __init__(self, response: ResponseContent, code: int, message: str) -> None:
+    """Error returned by Remember The Milk."""
+
+    def __init__(  # noqa: D107
+        self, response: ResponseContent, code: int, message: str
+    ) -> None:
         super().__init__(code, message)
         self.code = code
         self.message = message
@@ -57,6 +63,8 @@ class ResponseError(Exception):
 
 @dataclass(frozen=True)
 class Identity:
+    """Object that represents a logged-in user."""
+
     username: str
     perms: str
     user_id: int
@@ -64,6 +72,7 @@ class Identity:
 
     @classmethod
     def from_response(cls, resp: Element) -> Identity:
+        """Create an Identity object from an `Element` object."""
         u = resp.find('auth/user').attrib
         return Identity(
             perms=resp.find('auth/perms').text,
@@ -77,6 +86,7 @@ class Identity:
 
 
 class Transport:
+    """Class that represents a connection to Remember The Milk."""
 
     AUTH_URL = 'https://api.rememberthemilk.com/services/auth/'
     REST_URL = 'https://api.rememberthemilk.com/services/rest/'
@@ -89,6 +99,15 @@ class Transport:
         token: Optional[str] = None,
         client: Optional[Client] = None,
     ) -> None:
+        """Create a Transport object.
+
+        Args:
+          api_key: A string containing the API key.
+          secret: A string containing the shared secret.
+          token: The token to use, if one is available.
+          client: A `httpx.Client` or `requests.Session` object to use,
+                  otherwise one will be automatically created.
+        """
         self.api_key = api_key
         self.secret = secret
         self._token = token
@@ -110,6 +129,31 @@ class Transport:
         self.client = client
 
     def invoke(self, method: str, **kwargs: Union[str, int, bool]) -> ResponseContent:
+        """Invokes a RTM method.
+
+        Parameters to pass the method should be given as keyword arguments.
+        Some parameters have special behaviours in this method:
+          * "auth_token" is automatically populated if it is missing, and if
+            the authentication flow needs to be completed first, this will
+            be done first.
+          * If "auth_token" is set to False, this will be treated as an
+            unauthenticated method call.
+          * If "format" is set to "json", then this will return JSON content.
+          * "version" defaults to "2" unless overridden.
+
+        Args:
+          method: The name of the RTM method to invoke (e.g "rtm.test.echo").
+          kwargs: Parameters to send for the method.
+
+        Returns:
+          An Element object that represents the response - unless "format"
+          was specified as "json", then a JSON-decoded dictionary will be
+          returned.
+
+        Raises:
+          ResponseError - if Remember The Milk returns an error response.
+          RuntimeError - if authentication is required, but no token is given.
+        """
         if kwargs.get('auth_token') is False:
             del kwargs['auth_token']
         elif not self.token:
@@ -127,10 +171,10 @@ class Transport:
         )
         resp.raise_for_status()
 
-        return self.process_response(resp, is_json)
+        return self._process_response(resp, is_json)
 
     @classmethod
-    def process_response(cls, resp: Response, is_json: bool) -> ResponseContent:
+    def _process_response(cls, resp: Response, is_json: bool) -> ResponseContent:
         err = None
 
         if is_json:
@@ -150,6 +194,12 @@ class Transport:
     def sign_params(
         self, **params: Union[str, int]
     ) -> Sequence[Tuple[str, Union[str, int]]]:
+        """Sign some parameters for Remember The Milk.
+
+        Given some key-value parameters to send to Remember The Milk,
+        return a sequence of key, value pairs that includes a signature
+        parameter that will verify this is a valid request.
+        """
         params.setdefault('api_key', self.api_key)
         param_pairs = tuple(sorted(params.items()))
         paramstr = ''.join(f'{k}{v}' for (k, v) in param_pairs)
@@ -165,6 +215,7 @@ class Transport:
 
     @property
     def token(self) -> Optional[str]:
+        """Return the current token associated with the connection."""
         self.__autoauth()
         return self._token
 
@@ -188,11 +239,24 @@ class Transport:
 
     @cached_property
     def whoami(self) -> Optional[Identity]:
+        """The Identity object describing the current user associated.
+
+        If the user is not authenticated, the value will be None.
+
+        This attribute is updated upon authentication, and whenever
+        the `authed` attribute is accessed. Repeated accesses will
+        not normally result in a call to Remember The Milk being made.
+        """
         # If true, evaluating self.authed will set the whoami object.
         return self.whoami if self.authed else None
 
     @property
     def authed(self) -> bool:
+        """Indicates if the transport is currently authorised.
+
+        Accessing this attribute will normally cause
+        a call to Remember The Milk to determine it each time.
+        """
         # Handle the auto-authentication workflow.
         try:
             if self.__autoauth():
@@ -209,6 +273,23 @@ class Transport:
     def start_auth(
         self, perms: str = 'read', open: bool = False, webapp: bool = False
     ) -> str:
+        """Start the authentication process.
+
+           Once the user has confirmed
+           access, the finish_auth method can optionally be called to complete
+           the authentication process. Otherwise, this will be done automatically
+           as the Transport object is used to make method invocations.
+
+        Args:
+          perms: The level of permissions desired - should be one of "read",
+                 "write" or "delete" (the highest level of permissions).
+          open: If true, this will call `webbrowser.open` with the link that
+                  is returned to request the user to grant access.
+          webapp: If true, this uses the "webapp" workflow for authentication.
+
+        Returns:
+          A string containing the URL a user should visit to grant access.
+        """
         params = {}
         if not webapp:
             rsp: Element = self.invoke('rtm.auth.getFrob', auth_token=False)
@@ -226,6 +307,11 @@ class Transport:
         return url
 
     def finish_auth(self) -> None:
+        """Finish the authentication process.
+
+        This should be called after start_auth, after the user has granted
+        access to their account.
+        """
         if not self.frob:
             raise RuntimeError('must call start_auth first')
         resp: Element = self.invoke(
