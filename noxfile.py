@@ -76,3 +76,10 @@ def mypy(session):
     args = session.posargs or ['src/']
     session.run("mypy", *args)
     session.run("pytype", "--disable=import-error", *args)
+
+
+@session
+def mkdocs(session):
+    session.install('mkdocs', 'mkdocstrings[python]', 'mkdocs-material')
+    session.run('pip', 'install', '-e', '.')
+    session.run('mkdocs', 'build')

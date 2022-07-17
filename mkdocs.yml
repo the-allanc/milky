@@ -1,0 +1,12 @@
+site_name: milky
+theme:
+  name: "material"
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+            - https://requests.readthedocs.io/en/stable/objects.inv
+          options:
+            extensions:
+              milky._docs: {}

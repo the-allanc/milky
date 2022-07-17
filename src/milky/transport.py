@@ -105,7 +105,7 @@ class Transport:
           api_key: A string containing the API key.
           secret: A string containing the shared secret.
           token: The token to use, if one is available.
-          client: A `httpx.Client` or `requests.Session` object to use,
+          client: A httpx.Client or [requests.Session][] object to use,
                   otherwise one will be automatically created.
         """
         self.api_key = api_key
@@ -143,16 +143,16 @@ class Transport:
 
         Args:
           method: The name of the RTM method to invoke (e.g "rtm.test.echo").
-          kwargs: Parameters to send for the method.
+          **kwargs: Parameters to send for the method.
 
         Returns:
           An Element object that represents the response - unless "format"
-          was specified as "json", then a JSON-decoded dictionary will be
-          returned.
+            was specified as "json", then a JSON-decoded dictionary will be
+            returned.
 
         Raises:
-          ResponseError - if Remember The Milk returns an error response.
-          RuntimeError - if authentication is required, but no token is given.
+          ResponseError: if Remember The Milk returns an error response.
+          RuntimeError: if authentication is required, but no token is given.
         """
         if kwargs.get('auth_token') is False:
             del kwargs['auth_token']
