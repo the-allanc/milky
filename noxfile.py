@@ -36,7 +36,7 @@ def tests(session, extralibs):
     session.run(*args)
 
 
-@session(reuse_venv=True)
+@session(python='3.8')
 def lint(session):
     reqs = session.poetry.export_requirements()
     session.install('-r', str(reqs))
