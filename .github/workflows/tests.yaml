@@ -1,14 +1,45 @@
 name: tests
 on: push
+
 jobs:
-  tests:
+
+  list_nox_test_sessions:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: excitedleigh/setup-nox@v2.1.0
+    - name: list test sessions
+      id: set-test-matrix
+      run: echo "::set-output name=matrix::$(nox -s list_test_sessions)"
+    outputs:
+      matrix: ${{ steps.set-test-matrix.outputs.matrix }}
+
+  run_all_tests:
+    needs: list_nox_test_sessions
+    strategy:
+      fail-fast: false
+      matrix:
+        nox_session: ${{ fromJson(needs.list_nox_test_sessions.outputs.matrix) }}
+    name: Run nox session ${{ matrix.nox_session }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-        architecture: x64
     - run: pip install poetry nox-poetry
     - run: poetry lock
-    - run: nox
+    - run: nox -s "${{ matrix.nox_session }}"
+
+  run_all_linters:
+    needs: list_nox_test_sessions
+    strategy:
+      fail-fast: false
+      matrix:
+        nox_session: [mypy, safety, lint]
+    name: Run nox session ${{ matrix.nox_session }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+    - run: pip install poetry nox-poetry
+    - run: poetry lock
+    - run: nox -s "${{ matrix.nox_session }}"

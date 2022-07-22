@@ -1,5 +1,9 @@
+try:
+    from nox_poetry import session
+except ImportError:
+    from nox import session
+
 import nox
-from nox_poetry import session
 
 nox.options.sessions = "tests", "lint", "mypy", "safety"
 nox.options.stop_on_first_error = True
@@ -11,11 +15,11 @@ locations = 'src', 'tests', 'noxfile'
 @nox.parametrize(
     'python,extralibs',
     [
-        ('3.8', []),
-        ('3.8', ['httpx']),
-        ('3.8', ['requests', 'defusedxml']),
-        ('3.8', ['requests', 'httpx']),
-        ('3.10', ['httpx']),
+        nox.param('3.8', [], id='noclient'),
+        nox.param('3.8', ['httpx'], id='httpx-only'),
+        nox.param('3.8', ['requests', 'defusedxml'], id='requests-with-defused'),
+        nox.param('3.8', ['requests', 'httpx'], id='both-clients'),
+        nox.param('3.10', ['httpx'], id='latest-py'),
     ],
 )
 def tests(session, extralibs):
@@ -34,6 +38,15 @@ def tests(session, extralibs):
         args.append("--typeguard-packages=milky")
         session.env['TYPE_CHECKING'] = '1'
     session.run(*args)
+
+
+@session(python=False)
+def list_test_sessions(session):
+    # https://stackoverflow.com/questions/66747359/how-to-generate-a-github-actions-build-matrix-that-dynamically-includes-a-list-o
+    import itertools, json
+
+    sessions_list = [f"tests({param})" for param in tests.parametrize]
+    print(json.dumps(sessions_list))
 
 
 @session(python='3.8')
