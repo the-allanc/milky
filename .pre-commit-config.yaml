@@ -9,12 +9,12 @@ repos:
     -   id: file-contents-sorter
         files: .gitignore
 -   repo: https://github.com/omnilib/ufmt
-    rev: v1.3.2
+    rev: v2.0.0
     hooks:
     - id: ufmt
       additional_dependencies:
-      - black == 22.3.0
-      - usort == 1.0.2
+      - black == 22.6.0
+      - usort == 1.0.4
 
     # Since yesqa only takes explicit file paths, it's easier to run it
     # as a pre-commit hook then as a linting tool.
