@@ -19,7 +19,7 @@ locations = 'src', 'tests', 'noxfile'
         nox.param('3.8', ['httpx'], id='httpx-only'),
         nox.param('3.8', ['requests', 'defusedxml'], id='requests-with-defused'),
         nox.param('3.8', ['requests', 'httpx'], id='both-clients'),
-        nox.param('3.10', ['httpx'], id='latest-py'),
+        nox.param('3.11', ['httpx'], id='latest-py'),
     ],
 )
 def tests(session, extralibs):

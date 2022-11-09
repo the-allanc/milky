@@ -43,6 +43,7 @@ class Bottle:
     def first(self, name: str) -> Optional[Bottle]:
         if res := self.element.find(name):
             return Bottle(res)
+        return None
 
     def all(self, name: str) -> Sequence[Bottle]:
         return [Bottle(r) for r in self.element.findall(name)]

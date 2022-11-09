@@ -20,11 +20,14 @@ jobs:
       fail-fast: false
       matrix:
         nox_session: ${{ fromJson(needs.list_nox_test_sessions.outputs.matrix) }}
+        python-version: ['3.8', '3.11']
     name: Run nox session ${{ matrix.nox_session }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
     - run: pip install poetry nox-poetry
     - run: nox -s "${{ matrix.nox_session }}"
 

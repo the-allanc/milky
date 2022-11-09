@@ -6,6 +6,7 @@ authors = ["Allan Crooks <allan@sixtyten.org>"]
 
 [tool.poetry.dependencies]
 python = ">= 3.8, < 3.11"
+cached-property = "^1.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

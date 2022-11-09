@@ -1,3 +1,4 @@
+# type: ignore
 import ast
 
 from griffe.agents.extensions import VisitorExtension, When
