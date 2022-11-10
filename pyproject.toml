@@ -5,7 +5,7 @@ description = ""
 authors = ["Allan Crooks <allan@sixtyten.org>"]
 
 [tool.poetry.dependencies]
-python = ">= 3.8, < 3.11"
+python = ">= 3.8, < 4"
 cached-property = "^1.5.2"
 
 [tool.poetry.dev-dependencies]
@@ -35,7 +35,7 @@ flake8-type-checking = "^2.0.1"
 flake8-pie = "^0.15.0"
 flake8-cognitive-complexity = "^0.1.0"
 yesqa = "^1.3.0"
-pytype = "^2022.6.23"
+pytype = { version = "^2022.6.23", python = ">=3.8,<3.11" }
 typeguard = "^2.13.3"
 typing-extensions = "^4.2.0"
 flake8-docstrings = "^1.6.0"
