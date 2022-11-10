@@ -3,25 +3,40 @@ on: push
 
 jobs:
 
-  list_nox_test_sessions:
+  list_nox_test_lib_variant_sessions:
     runs-on: ubuntu-latest
+    name: List Nox sessions
     steps:
     - uses: actions/checkout@v3
     - uses: excitedleigh/setup-nox@v2.1.0
-    - name: list test sessions
+    - name: List sessions
       id: set-test-matrix
-      run: echo "::set-output name=matrix::$(nox -s list_test_sessions)"
+      run: echo "::set-output name=matrix::$(nox -s list_test_lib_variant_sessions)"
     outputs:
       matrix: ${{ steps.set-test-matrix.outputs.matrix }}
 
-  run_all_tests:
-    needs: list_nox_test_sessions
+  run_test_lib_variants:
+    needs: list_nox_test_lib_variant_sessions
     strategy:
       fail-fast: false
       matrix:
-        nox_session: ${{ fromJson(needs.list_nox_test_sessions.outputs.matrix) }}
+        nox_session: ${{ fromJson(needs.list_nox_test_lib_variant_sessions.outputs.matrix) }}
+    name: Run lib variant tests for ${{ matrix.nox_session }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    - run: pip install poetry nox-poetry
+    - run: nox -s "${{ matrix.nox_session }}"
+
+  run_tests_diff_libs:
+    name: Run tests for Python ${{ matrix.python-version }}
+    strategy:
+      fail-fast: false
+      matrix:
         python-version: ['3.8', '3.11']
-    name: Run nox session ${{ matrix.nox_session }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -29,7 +44,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - run: pip install poetry nox-poetry
-    - run: nox -s "${{ matrix.nox_session }}"
+    - run: nox -s tests
 
   run_all_linters:
     strategy:

@@ -12,17 +12,7 @@ locations = 'src', 'tests', 'noxfile'
 
 
 @session
-@nox.parametrize(
-    'python,extralibs',
-    [
-        nox.param('3.8', [], id='noclient'),
-        nox.param('3.8', ['httpx'], id='httpx-only'),
-        nox.param('3.8', ['requests', 'defusedxml'], id='requests-with-defused'),
-        nox.param('3.8', ['requests', 'httpx'], id='both-clients'),
-        nox.param('3.11', ['httpx'], id='latest-py'),
-    ],
-)
-def tests(session, extralibs):
+def tests(session, extralibs=['httpx']):
     session.install(".")
     session.install(
         "vcrpy @ git+https://github.com/the-allanc/vcrpy.git@httpx-cassette-compatibility"
@@ -40,12 +30,27 @@ def tests(session, extralibs):
     session.run(*args)
 
 
+@session
+@nox.parametrize(
+    'extralibs',
+    [
+        nox.param([], id='noclient'),
+        nox.param(['requests', 'defusedxml'], id='requests-with-defused'),
+        nox.param(['requests', 'httpx'], id='both-clients'),
+    ],
+)
+def test_lib_variants(session, extralibs):
+    tests(session, extralibs)
+
+
 @session(python=False)
-def list_test_sessions(session):
+def list_test_lib_variant_sessions(session):
     # https://stackoverflow.com/questions/66747359/how-to-generate-a-github-actions-build-matrix-that-dynamically-includes-a-list-o
     import itertools, json
 
-    sessions_list = [f"tests({param})" for param in tests.parametrize]
+    sessions_list = [
+        f"test_lib_variants({param})" for param in test_lib_variants.parametrize
+    ]
     print(json.dumps(sessions_list))
 
 
