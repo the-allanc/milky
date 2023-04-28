@@ -89,6 +89,9 @@ flake8-annotations =  ["-*"]
 flake8-annotations =  ["-*"]
 flake8-docstrings =  ["-*"]
 
+[tool.flakeheaven.exceptions."src/milky/datatypes.py"]
+flake8-docstrings =  ["-*"]
+
 [tool.flakeheaven]
 format = "grouped"
 show_source = true

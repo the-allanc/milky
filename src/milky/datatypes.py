@@ -11,7 +11,7 @@ class Bottle:
 
     element: ElementTree.Element
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         assert isinstance(self.element, ElementTree.Element), type(self.element)
 
     def __getitem__(self, name: str) -> str:
@@ -49,7 +49,7 @@ class Bottle:
         return [Bottle(r) for r in self.element.findall(name)]
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self.element.text
 
     def __str__(self) -> str:

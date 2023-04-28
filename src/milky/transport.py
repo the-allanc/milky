@@ -178,7 +178,7 @@ class Transport:
         err = None
 
         if is_json:
-            result = resp.json()
+            result = resp.json()  # noqa: S303
             if result['rsp']['stat'] == 'fail':
                 err = result['rsp']['err']
         else:

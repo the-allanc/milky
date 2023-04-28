@@ -1,2 +1,4 @@
 .coverage
+.envrc
+.venv
 __pycache__
