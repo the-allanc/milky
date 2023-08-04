@@ -1,8 +1,7 @@
 import types
 
 import pytest
-
-from milky.transport import ResponseError, Transport
+from milky.transport import ResponseCodes, ResponseError, Transport
 
 has_ = types.SimpleNamespace()
 
@@ -148,7 +147,7 @@ class TestTransport(Settings):
             ResponseError, match='98: Login failed / Invalid auth token'
         ) as e:
             r.invoke('rtm.auth.checkToken')
-        assert e.value.code == 98
+        assert e.value.code == ResponseCodes.LOGIN_FAILED_OR_BAD_TOKEN.value
         assert e.value.response.get('stat') == 'fail'
 
     @pytest.mark.vcr
@@ -158,7 +157,7 @@ class TestTransport(Settings):
             ResponseError, match='98: Login failed / Invalid auth token'
         ) as e:
             r.invoke('rtm.auth.checkToken', format='json')
-        assert e.value.code == 98
+        assert e.value.code == ResponseCodes.LOGIN_FAILED_OR_BAD_TOKEN.value
         assert e.value.response['rsp']['stat'] == 'fail'
 
     @pytest.mark.vcr(

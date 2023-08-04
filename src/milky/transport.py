@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import enum
 import hashlib
 import os
 import urllib.parse
@@ -83,6 +84,12 @@ class Identity:
 
     def __str__(self) -> str:
         return f'"{self.username}" with {self.perms} permissions'
+
+
+class ResponseCodes(enum.Enum):
+    """Response codes returned by RTM."""
+    LOGIN_FAILED_OR_BAD_TOKEN = 98
+    INVALID_FROB = 101
 
 
 class Transport:
@@ -233,7 +240,7 @@ class Transport:
         try:
             return self.invoke('rtm.auth.checkToken')
         except ResponseError as e:
-            if e.code == 98:
+            if e.code == ResponseCodes.LOGIN_FAILED_OR_BAD_TOKEN.value:
                 return None
             raise
 
@@ -262,7 +269,7 @@ class Transport:
             if self.__autoauth():
                 return True
         except ResponseError as e:
-            if e.code == 101:  # Invalid or unauthenticated frob.
+            if e.code == ResponseCodes.INVALID_FROB.value:
                 return False
             raise
 
