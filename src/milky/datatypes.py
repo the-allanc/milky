@@ -1,3 +1,4 @@
+"""Common datastructures used by Milky."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,6 +9,22 @@ from milky.transport import ElementTree
 
 @dataclass
 class Bottle:
+    """Wrapper for Element objects.
+
+    Intended to easily pick out attribute names or text content
+    from the wrapped element or subelements.
+
+    Usage:
+       bottle['id'] # Returns attribute 'id' of wrapped element
+       bottle.id # Same as above
+       bottle['location/id'] # Returns attribute 'id' of child element 'location'
+       bottle['location/country/code'] # Returns attribute 'code' from the
+                                       # descendant element 'location/country'
+       bottle['location/'] # Returns text of child element 'location'
+
+    If no attribute can be found, then a Bottle instance will search for
+    a child element with that tag and return the text of it.
+    """
 
     element: ElementTree.Element
 
