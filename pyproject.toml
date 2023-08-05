@@ -11,7 +11,6 @@ cached-property = "^1.5.2"
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-recording = "*"
-vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
 coverage = {extras = ["toml"], version = "*"}
 pytest-cov = "*"
 requests = "*"
@@ -19,29 +18,24 @@ httpx = "*"
 defusedxml = "*"
 mypy = "^0.961"
 flakeheaven = "^2.0.0"
-flake8-bugbear = "^22.6.22"
 flake8-warnings = "^0.2.1"
-flake8-executable = "^2.1.1"
 dlint = "^0.12.0"
 flake8-bandit = "^3.0.0"
-flake8-simplify = "^0.19.2"
-flake8-comprehensions = "^3.10.0"
 flake8-use-fstring = "^1.3"
 flake8-expression-complexity = "^0.0.11"
 flake8-noqa = "^1.2.5"
-flake8-annotations = "^2.9.0"
-flake8-future-annotations = "^0.0.5"
-flake8-type-checking = "^2.0.1"
-flake8-pie = "^0.15.0"
 flake8-cognitive-complexity = "^0.1.0"
 yesqa = "^1.3.0"
 pytype = { version = "^2022.6.23", python = ">=3.8,<3.11" }
 typeguard = "^2.13.3"
 typing-extensions = "^4.2.0"
-flake8-docstrings = "^1.6.0"
 mkdocs = "^1.3.0"
 mkdocstrings = {extras = ["python"], version = "^0.19.0"}
 mkdocs-material = "^8.3.8"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.282"
+vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
 
 [tool.coverage.paths]
 source = ["src"]
@@ -59,24 +53,15 @@ skip-string-normalization = true
 [tool.flakeheaven.plugins]
 pycodestyle = ["+*"]
 pyflakes = ["+*"]
-mccabe = ["+*"]
 pylint = ["+*"]
-flake8-bugbear = ["+*"]
-flake8-docstrings = ["+*", "-D105"]
+#flake8-docstrings = ["+*", "-D105"]
 flake8-warnings = ["+*"]
 dlint = ["+*"]
-flake8-bandit = ["+*", "-S101"]
-flake8-pie = ["+*"]
-flake8-simplify = ["+*"]
-flake8-comprehensions = ["+*"]
+flake8-bandit = ["+*", "-S101", "-S303"]
 flake8-use-fstring = ["+*"]
 flake8-cognitive-complexity = ["+*"]
-flake8-executable = ["+*"]
 flake8-expression-complexity = ["+*"]
 flake8-noqa = ["+*"]
-flake8-annotations  = ["+*", "-ANN1*"]
-flake8-future-annotations = ["+*"]
-flake8-type-checking = ["+*"]
 
 [tool.flakeheaven.exceptions."tests/"]
 flake8-docstrings = ["-*"]
@@ -103,6 +88,20 @@ docstring_convention = "google"
 [[tool.mypy.overrides]]
 module = "defusedxml.etree"
 ignore_missing_imports = true
+
+[tool.ruff]
+select = ["ALL"]
+ignore = ["Q", "COM", "EM101", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204"]
+target-version = "py38"
+
+[tool.ruff.per-file-ignores]
+"noxfile.py" = ["ANN", "D"]
+"src/milky/_docs.py" = ["ANN"]
+"tests/conftest.py" = ["ARG001"]
+"tests/*.py" = ["ANN", "D", "S101", "RUF015"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

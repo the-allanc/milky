@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Sequence
+from typing import Sequence
 
 from milky.transport import ElementTree
 
@@ -28,8 +28,9 @@ class Bottle:
 
     element: ElementTree.Element
 
-    def __post_init__(self) -> None:
-        assert isinstance(self.element, ElementTree.Element), type(self.element)
+    def __post_init__(self):
+        if not isinstance(self.element, ElementTree.Element):
+            raise TypeError(type(self.element))
 
     def __getitem__(self, name: str) -> str:
         subpath, _, attr = name.rpartition('/')
@@ -39,12 +40,11 @@ class Bottle:
 
         if not attr:
             return element.text
-        elif attr in element.attrib:
+        if attr in element.attrib:
             return element.attrib[attr]
-        elif (element := element.find(attr)) is not None:
+        if (element := element.find(attr)) is not None:
             return element.text
-        else:
-            raise KeyError(name)
+        raise KeyError(name)
 
     def __getattr__(self, name: str) -> str:
         try:
@@ -53,20 +53,35 @@ class Bottle:
             raise AttributeError(name) from None
 
     def one(self, name: str) -> Bottle:
-        if (result := self.first(name)) is None:
-            raise ValueError(name)
-        return result
+        """Return the only descendant element that matches the path given.
 
-    def first(self, name: str) -> Optional[Bottle]:
-        if res := self.element.find(name):
+        Raises ValueError if one cannot be found.
+        """
+        if len(result := self.all(name)) == 1:
+            return result[0]
+        raise ValueError(name)
+
+    def first(self, name: str) -> Bottle | None:
+        """Return the first descendant element that matches the path given.
+
+        Returns None otherwise.
+        """
+        if (res := self.element.find(name)) is not None:
             return Bottle(res)
         return None
 
     def all(self, name: str) -> Sequence[Bottle]:
+        """Returns all of the descendant elements that match the path given."""
         return [Bottle(r) for r in self.element.findall(name)]
 
     @property
+    def tag(self) -> str:
+        """The name of the tag."""
+        return self.element.tag
+
+    @property
     def text(self) -> str:
+        """The text of the element itself."""
         return self.element.text
 
     def __str__(self) -> str:

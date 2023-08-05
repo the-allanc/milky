@@ -8,6 +8,11 @@ repos:
     -   id: check-yaml
     -   id: file-contents-sorter
         files: .gitignore
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.282
+    hooks:
+    -   id: ruff
+        args: [ --fix, --exit-non-zero-on-fix ]
 -   repo: https://github.com/omnilib/ufmt
     rev: v2.0.0
     hooks:

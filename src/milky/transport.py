@@ -14,9 +14,9 @@ from functools import cached_property
 try:
     from defusedxml.etree import ElementTree
 except ImportError:
-    from xml.etree import ElementTree  # noqa: DUO107, S405
+    from xml.etree import ElementTree  # noqa: RUF100, DUO107, S405
 
-from typing import Any, Dict, Optional, Sequence, Tuple, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Dict, Sequence, Union
 
 import milky
 
@@ -25,7 +25,7 @@ TYPE_CHECKING = TYPE_CHECKING or os.environ.get('TYPE_CHECKING') == '1'
 if TYPE_CHECKING:
     import httpx
     import requests
-    from typing_extensions import TypeAlias
+    from typing_extensions import TypeAlias  # noqa: TCH002
 
     Response = Union[requests.models.Response, httpx.Response]
     Element: TypeAlias = ElementTree.Element  # pytype: disable=invalid-annotation
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     Client = Union[requests.Session, httpx.Client]
 
 
-def _client_maker() -> Optional[Client]:
+def _client_maker() -> Client | None:
     with contextlib.suppress(ImportError):
         import httpx
 
@@ -71,8 +71,8 @@ class Identity:
     user_id: int
     fullname: str
 
-    @classmethod
-    def from_response(cls, resp: Element) -> Identity:
+    @staticmethod
+    def from_response(resp: Element) -> Identity:
         """Create an Identity object from an `Element` object."""
         u = resp.find('auth/user').attrib
         return Identity(
@@ -103,8 +103,8 @@ class Transport:
         self,
         api_key: str,
         secret: str,
-        token: Optional[str] = None,
-        client: Optional[Client] = None,
+        token: str | None = None,
+        client: Client | None = None,
     ) -> None:
         """Create a Transport object.
 
@@ -135,7 +135,7 @@ class Transport:
 
         self.client = client
 
-    def invoke(self, method: str, **kwargs: Union[str, int, bool]) -> ResponseContent:
+    def invoke(self, method: str, **kwargs: str | int | bool) -> ResponseContent:
         """Invokes a RTM method.
 
         Parameters to pass the method should be given as keyword arguments.
@@ -180,8 +180,8 @@ class Transport:
 
         return self._process_response(resp, is_json)
 
-    @classmethod
-    def _process_response(cls, resp: Response, is_json: bool) -> ResponseContent:
+    @staticmethod
+    def _process_response(resp: Response, is_json: bool) -> ResponseContent:
         err = None
 
         if is_json:
@@ -199,8 +199,8 @@ class Transport:
         return result
 
     def sign_params(
-        self, **params: Union[str, int]
-    ) -> Sequence[Tuple[str, Union[str, int]]]:
+        self, **params: str | int
+    ) -> Sequence[tuple[str, str | int]]:
         """Sign some parameters for Remember The Milk.
 
         Given some key-value parameters to send to Remember The Milk,
@@ -211,8 +211,8 @@ class Transport:
         param_pairs = tuple(sorted(params.items()))
         paramstr = ''.join(f'{k}{v}' for (k, v) in param_pairs)
         payload = f'{self.secret}{paramstr}'
-        sig = hashlib.md5(payload.encode('utf-8')).hexdigest()  # noqa: S303
-        return param_pairs + (('api_sig', sig),)
+        sig = hashlib.md5(payload.encode('utf-8')).hexdigest()  # noqa: S324
+        return (*param_pairs, ('api_sig', sig))
 
     def __autoauth(self) -> bool:
         if (not self._token) and self.frob:
@@ -221,20 +221,20 @@ class Transport:
         return False
 
     @property
-    def token(self) -> Optional[str]:
+    def token(self) -> str | None:
         """Return the current token associated with the connection."""
         self.__autoauth()
         return self._token
 
     @token.setter
-    def token(self, value: Optional[str]) -> None:
+    def token(self, value: str | None) -> None:
         self._token = value
         with contextlib.suppress(AttributeError):
             del self.frob
         with contextlib.suppress(AttributeError):
             del self.whoami
 
-    def __check_token(self) -> Optional[Element]:
+    def __check_token(self) -> Element | None:
         if not self._token:
             return None
         try:
@@ -245,7 +245,7 @@ class Transport:
             raise
 
     @cached_property
-    def whoami(self) -> Optional[Identity]:
+    def whoami(self) -> Identity | None:
         """The Identity object describing the current user associated.
 
         If the user is not authenticated, the value will be None.
@@ -278,7 +278,7 @@ class Transport:
         return bool(res)
 
     def start_auth(
-        self, perms: str = 'read', open: bool = False, webapp: bool = False
+        self, perms: str = 'read', open: bool = False, webapp: bool = False # noqa: A002
     ) -> str:
         """Start the authentication process.
 

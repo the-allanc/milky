@@ -44,14 +44,14 @@ def test_lib_variants(session, extralibs):
 
 
 @session(python=False)
-def list_test_lib_variant_sessions(session):
+def list_test_lib_variant_sessions(session): # noqa: ARG001
     # https://stackoverflow.com/questions/66747359/how-to-generate-a-github-actions-build-matrix-that-dynamically-includes-a-list-o
-    import itertools, json
+    import json
 
     sessions_list = [
         f"test_lib_variants({param})" for param in test_lib_variants.parametrize
     ]
-    print(json.dumps(sessions_list))
+    print(json.dumps(sessions_list)) # noqa: T201
 
 
 @session(python='3.8')
