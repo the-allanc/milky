@@ -1,6 +1,7 @@
 .coverage
 .envrc
+.python-version
 .venv
 __pycache__
-.venv
-.envrc
+dist
+site
