@@ -88,6 +88,7 @@ class Identity:
 
 class ResponseCodes(enum.Enum):
     """Response codes returned by RTM."""
+
     LOGIN_FAILED_OR_BAD_TOKEN = 98
     INVALID_FROB = 101
 
@@ -185,7 +186,7 @@ class Transport:
         err = None
 
         if is_json:
-            result = resp.json()  # noqa: S303
+            result = resp.json()  # noqa: RUF100, S303
             if result['rsp']['stat'] == 'fail':
                 err = result['rsp']['err']
         else:
@@ -198,9 +199,7 @@ class Transport:
 
         return result
 
-    def sign_params(
-        self, **params: str | int
-    ) -> Sequence[tuple[str, str | int]]:
+    def sign_params(self, **params: str | int) -> Sequence[tuple[str, str | int]]:
         """Sign some parameters for Remember The Milk.
 
         Given some key-value parameters to send to Remember The Milk,
@@ -278,7 +277,10 @@ class Transport:
         return bool(res)
 
     def start_auth(
-        self, perms: str = 'read', open: bool = False, webapp: bool = False # noqa: A002
+        self,
+        perms: str = 'read',
+        open: bool = False,  # noqa: A002
+        webapp: bool = False,
     ) -> str:
         """Start the authentication process.
 

@@ -9,7 +9,7 @@ for module in ['requests', 'httpx']:
     try:
         __import__(module)
         setattr(has_, module, True)
-    except ImportError: # noqa: PERF203
+    except ImportError:  # noqa: PERF203
         setattr(has_, module, False)
 del module, types
 
