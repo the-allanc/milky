@@ -8,7 +8,7 @@ import nox
 nox.options.sessions = "tests", "lint", "mypy", "safety"
 nox.options.stop_on_first_error = True
 
-locations = 'src', 'tests', 'noxfile'
+locations = 'src', 'tests', 'noxfile.py'
 
 
 @session
@@ -30,7 +30,7 @@ def tests(session, extralibs=['httpx']):
     session.run(*args)
 
 
-@session
+@session(python='3.10')
 @nox.parametrize(
     'extralibs',
     [
@@ -54,7 +54,7 @@ def list_test_lib_variant_sessions(session): # noqa: ARG001
     print(json.dumps(sessions_list)) # noqa: T201
 
 
-@session(python='3.8')
+@session(python='3.10')
 def lint(session):
     reqs = session.poetry.export_requirements()
     session.install('-r', str(reqs))
@@ -64,6 +64,9 @@ def lint(session):
     if tuple(session.posargs)[:1] == ('run-yesqa',):
         session.run('yesqa', *session.posargs[1:])
         return
+
+    # Start with the ruff stuff.
+    session.run('ruff', *locations)
 
     # List plugins and fail if any are missing.
     session.run('flakeheaven', 'plugins')
@@ -84,7 +87,7 @@ def safety(session):
     session.run("safety", "check", f"--file={reqs}", "--full-report")
 
 
-@session(reuse_venv=True)
+@session(python='3.10')
 def mypy(session):
     # Using pip to install, rather than Poetry:
     #   https://github.com/python-poetry/poetry/issues/5193
