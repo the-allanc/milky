@@ -36,6 +36,7 @@ mkdocs-material = "^8.3.8"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.282"
 vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
+ipython = "8.12.1"
 
 [tool.coverage.paths]
 source = ["src"]
