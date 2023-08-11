@@ -55,7 +55,6 @@ skip-string-normalization = true
 pycodestyle = ["+*"]
 pyflakes = ["+*"]
 pylint = ["+*"]
-#flake8-docstrings = ["+*", "-D105"]
 flake8-warnings = ["+*"]
 dlint = ["+*"]
 flake8-bandit = ["+*", "-S101", "-S303"]
@@ -63,20 +62,6 @@ flake8-use-fstring = ["+*"]
 flake8-cognitive-complexity = ["+*"]
 flake8-expression-complexity = ["+*"]
 flake8-noqa = ["+*"]
-
-[tool.flakeheaven.exceptions."tests/"]
-flake8-docstrings = ["-*"]
-flake8-annotations = ["-*"]
-
-[tool.flakeheaven.exceptions."noxfile.py"]
-flake8-annotations =  ["-*"]
-
-[tool.flakeheaven.exceptions."src/milky/_docs.py"]
-flake8-annotations =  ["-*"]
-flake8-docstrings =  ["-*"]
-
-[tool.flakeheaven.exceptions."src/milky/datatypes.py"]
-flake8-docstrings =  ["-*"]
 
 [tool.flakeheaven]
 format = "grouped"
@@ -92,7 +77,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 select = ["ALL"]
-ignore = ["Q", "COM", "EM101", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204"]
+ignore = ["Q", "COM", "EM", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "D"]
 target-version = "py38"
 
 [tool.ruff.per-file-ignores]
