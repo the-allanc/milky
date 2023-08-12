@@ -74,7 +74,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 select = ["ALL"]
-ignore = ["Q", "COM", "EM", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "D"]
+ignore = ["Q", "COM", "EM101", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "D", "C408"]
 target-version = "py38"
 
 [tool.ruff.per-file-ignores]
