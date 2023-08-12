@@ -25,6 +25,10 @@ class Settings:
 
 
 class TestClient(Settings):
+    @pytest.fixture()
+    def vcr_config(self):
+        return {}
+
     @pytest.mark.skipif(not has_.httpx, reason='needs httpx')
     @pytest.mark.skipif(has_.requests, reason='requests is installed')
     @pytest.mark.vcr('TestClient.test_server_error.yaml')
@@ -53,8 +57,16 @@ class TestClient(Settings):
             Transport(self.API_KEY, self.SECRET)
 
 
-@pytest.mark.skipif(not (has_.requests or has_.httpx), reason='needs http lib')
+has_httplib = not (has_.requests or has_.httpx)
+needs_httplib = pytest.mark.skipif(has_httplib, reason='needs http lib')
+
+
+@needs_httplib
 class TestTransport(Settings):
+    @pytest.fixture()
+    def vcr_config(self):
+        return {}
+
     @pytest.mark.vcr()
     def test_desktop_auth(self):
         frob = "85cfb0d6aece75f477f99c1afe4b8d006977244e"
@@ -264,3 +276,12 @@ class TestTransport(Settings):
         r.start_auth("delete")
         assert r.authed
         assert r.whoami.fullname == 'Money Mark'
+
+
+@needs_httplib
+class TestCassetteCredentials:
+    @pytest.mark.vcr()
+    def test_logged_in(self, t_params):
+        # This just tests that we can use cassettes which has
+        # credential information stripped out.
+        assert Transport(**t_params).invoke('rtm.lists.getList').find('lists')
