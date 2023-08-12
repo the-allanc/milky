@@ -59,12 +59,6 @@ def lint(session):
     reqs = session.poetry.export_requirements()
     session.install('-r', str(reqs))
 
-    # We want to reuse the same environment, so this is the hack
-    # to achieve that.
-    if tuple(session.posargs)[:1] == ('run-yesqa',):
-        session.run('yesqa', *session.posargs[1:])
-        return
-
     # Start with the ruff stuff.
     session.run('ruff', *locations)
 

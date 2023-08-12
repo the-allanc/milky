@@ -1917,17 +1917,6 @@ files = [
 widechars = ["wcwidth"]
 
 [[package]]
-name = "tokenize-rt"
-version = "5.2.0"
-description = "A wrapper around the stdlib `tokenize` which roundtrips."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "tokenize_rt-5.2.0-py2.py3-none-any.whl", hash = "sha256:b79d41a65cfec71285433511b50271b05da3584a1da144a0752e9c621a285289"},
-    {file = "tokenize_rt-5.2.0.tar.gz", hash = "sha256:9fe80f8a5c1edad2d3ede0f37481cc0cc1538a2f442c9c2f9e4feacd2792d054"},
-]
-
-[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -2264,21 +2253,6 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [[package]]
-name = "yesqa"
-version = "1.5.0"
-description = "Automatically remove unnecessary `# noqa` comments."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "yesqa-1.5.0-py2.py3-none-any.whl", hash = "sha256:600c6d6e59aff9d85422c28c0d0ff016c040f4eb653636632c18fb6c43453e00"},
-    {file = "yesqa-1.5.0.tar.gz", hash = "sha256:209c17274f3c0cc22195ddb26f93df3523634d0756f756913ed05cba970efad9"},
-]
-
-[package.dependencies]
-flake8 = ">=3.9"
-tokenize-rt = ">=2.1"
-
-[[package]]
 name = "zipp"
 version = "3.16.2"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -2296,4 +2270,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 4"
-content-hash = "5dd2f18f315eb1726ee0bcd58b71e9565a9dd2813dd5b52d143019dbaede5c04"
+content-hash = "49a323eff633e7f8c098f76327e4df821ce550acd930dfce0833d2e1baf14393"
