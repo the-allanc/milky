@@ -27,7 +27,7 @@ def tests(session, extralibs=['httpx']):  # noqa: B006
     if extralibs == ['requests', 'httpx']:
         args.append("--typeguard-packages=milky")
         session.env['TYPE_CHECKING'] = '1'
-    session.run(*args)
+    session.run(*args, *session.posargs)
 
 
 @session(python='3.10')
