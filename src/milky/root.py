@@ -1,0 +1,47 @@
+from __future__ import annotations
+
+import typing
+
+from .cache import Cache, cache_controlled
+from .datatypes import Bottle
+
+if typing.TYPE_CHECKING:
+    from .transport import ElementTree, Transport
+
+
+class Milky:
+    def __init__(self, transport: Transport):
+        self.transport = transport
+        self.cache = Cache()
+
+    def invoke(
+        self,
+        method: str,
+        /,
+        timeline: bool | str = False,
+        envelope: bool = False,
+        **kwargs: str | int | bool,
+    ) -> Bottle | None:
+        if timeline:
+            kwargs['timeline'] = self.timeline if timeline is True else timeline
+        res = self.transport.invoke(method, **kwargs)
+        return Bottle(res if envelope else self._unwrap_response(res))
+
+    @staticmethod
+    def _unwrap_response(res: ElementTree) -> ElementTree | None:
+        # If they want content, we'll have to extract it.
+        if res.tag != 'rsp':
+            msg = f'Response has tag "{res.element.tag}" rather than "rsp"'
+            raise RuntimeError(msg)
+
+        # We expect at most one child element which is not a transaction.
+        if kids := [kid for kid in list(res) if kid.tag != 'transaction']:
+            if len(kids) > 1:
+                msg = 'Response has multiple content elements, cannot select just one'
+                raise RuntimeError(msg)
+            return kids[0]
+        return None
+
+    @cache_controlled('timeline')
+    def timeline(self) -> str:
+        return self.invoke('rtm.timelines.create').text
