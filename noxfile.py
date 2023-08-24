@@ -3,10 +3,14 @@ try:
 except ImportError:
     from nox import session
 
+import os
+
 import nox
 
-nox.options.sessions = "tests", "lint", "mypy", "safety"
-nox.options.stop_on_first_error = True
+# When running on Github, let all the sessions be selected.
+if not os.environ.get('GITHUB_WORKSPACE'):
+    nox.options.sessions = "tests", "lint", "mypy", "safety"
+    nox.options.stop_on_first_error = True
 
 locations = 'src', 'tests', 'noxfile.py'
 
@@ -41,17 +45,6 @@ def tests(session, extralibs=['httpx']):  # noqa: B006
 )
 def test_lib_variants(session, extralibs):
     tests(session, extralibs)
-
-
-@session(python=False)
-def list_test_lib_variant_sessions(session):  # noqa: ARG001
-    # https://stackoverflow.com/questions/66747359/how-to-generate-a-github-actions-build-matrix-that-dynamically-includes-a-list-o
-    import json
-
-    sessions_list = [
-        f"test_lib_variants({param})" for param in test_lib_variants.parametrize
-    ]
-    print(json.dumps(sessions_list))  # noqa: T201
 
 
 @session(python='3.10')

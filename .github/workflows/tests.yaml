@@ -8,10 +8,10 @@ jobs:
     name: List Nox sessions
     steps:
     - uses: actions/checkout@v3
-    - uses: excitedleigh/setup-nox@v2.1.0
+    - uses: wntrblm/nox@2023.04.22
     - name: List sessions
       id: set-test-matrix
-      run: echo "::set-output name=matrix::$(nox -s list_test_lib_variant_sessions)"
+      run: echo "matrix=$(nox -l --json | jq -c '.[].session | select(. | test("test_lib*"))' | jq -sc)" >> $GITHUB_OUTPUT
     outputs:
       matrix: ${{ steps.set-test-matrix.outputs.matrix }}
 
