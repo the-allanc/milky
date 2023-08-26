@@ -9,7 +9,6 @@ import os
 import urllib.parse
 import webbrowser
 from dataclasses import dataclass
-from functools import cached_property
 
 try:
     from defusedxml.etree import ElementTree
@@ -19,6 +18,8 @@ except ImportError:
 from typing import Any, Dict, Sequence, TYPE_CHECKING, Union
 
 import milky
+
+from milky.cache import cache_controlled
 
 TYPE_CHECKING = TYPE_CHECKING or os.environ.get('TYPE_CHECKING') == '1'
 
@@ -241,7 +242,7 @@ class Transport:
                 return None
             raise
 
-    @cached_property
+    @cache_controlled(None)
     def whoami(self) -> Identity | None:
         """The Identity object describing the current user associated.
 
