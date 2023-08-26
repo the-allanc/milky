@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from functools import partial
 from typing import Any, Callable
 
@@ -60,7 +62,10 @@ class CacheView:
 
 
 class CacheableProperty:
-    def __init__(self, location: str, inner: Callable):
+
+    name: str
+
+    def __init__(self, location: str | None, inner: Callable):
         self.location = location
         self.inner = inner
 
@@ -92,5 +97,5 @@ class CacheableProperty:
         return result
 
 
-def cache_controlled(key: str) -> Callable:
+def cache_controlled(key: str | None) -> Callable:
     return partial(CacheableProperty, key)

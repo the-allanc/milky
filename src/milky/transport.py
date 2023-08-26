@@ -16,7 +16,7 @@ try:
 except ImportError:
     from xml.etree import ElementTree  # noqa: RUF100, DUO107, S405
 
-from typing import TYPE_CHECKING, Any, Dict, Sequence, Union
+from typing import Any, Dict, Sequence, TYPE_CHECKING, Union
 
 import milky
 
@@ -50,9 +50,7 @@ def _client_maker() -> Client | None:
 class ResponseError(Exception):
     """Error returned by Remember The Milk."""
 
-    def __init__(  # noqa: D107
-        self, response: ResponseContent, code: int, message: str
-    ) -> None:
+    def __init__(self, response: ResponseContent, code: int, message: str) -> None:
         super().__init__(code, message)
         self.code = code
         self.message = message
