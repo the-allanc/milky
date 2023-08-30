@@ -19,28 +19,28 @@ class Milky:
         method: str,
         /,
         timeline: bool | str = False,
-        envelope: bool = False,
+        unwrap: bool = True,
         **kwargs: str | int | bool,
-    ) -> Bottle | None:
+    ) -> Bottle:
         if timeline:
             kwargs['timeline'] = self.timeline if timeline is True else timeline
         res = self.transport.invoke(method, **kwargs)
-        return Bottle(res if envelope else self._unwrap_response(res))
+        return Bottle(self._unwrap_response(res) if unwrap else res)
 
     @staticmethod
-    def _unwrap_response(res: ElementTree) -> ElementTree | None:
+    def _unwrap_response(res: ElementTree) -> ElementTree:
         # If they want content, we'll have to extract it.
         if res.tag != 'rsp':
             msg = f'Response has tag "{res.element.tag}" rather than "rsp"'
             raise RuntimeError(msg)
 
         # We expect at most one child element which is not a transaction.
-        if kids := [kid for kid in list(res) if kid.tag != 'transaction']:
-            if len(kids) > 1:
-                msg = 'Response has multiple content elements, cannot select just one'
-                raise RuntimeError(msg)
-            return kids[0]
-        return None
+        if not (kids := [kid for kid in list(res) if kid.tag != 'transaction']):
+            raise RuntimeError("no elements in response, consider using unwrap=False")
+        if len(kids) > 1:
+            msg = 'Response has multiple content elements, cannot select just one'
+            raise RuntimeError(msg)
+        return kids[0]
 
     @cache_controlled('timeline')
     def timeline(self) -> str:
