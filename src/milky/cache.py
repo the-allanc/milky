@@ -6,7 +6,7 @@ from typing import Any, Callable
 
 class Cache:
     DEFAULTS = (
-        ('timeline', False),
+        ('timeline', True),
         ('timezone', True),
     )
 
