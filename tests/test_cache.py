@@ -53,6 +53,9 @@ def test_main():
     assert c['aa.bb.cc'] is True
     assert str(c) == "Cache(aa=on, aa.bb=off, aa.bb.cc=on, dd=off)"
 
+    rep = "Cache({'aa': True, 'aa.bb': False, 'aa.bb.cc': True, 'dd': False})"
+    assert repr(c) == rep
+
     # Switch settings.
     c['aa.bb'] = True
     c['aa.bb.cc'] = False
@@ -95,6 +98,11 @@ def test_decorator():
     # Configured to not use cache.
     assert c.the_b is not c.the_b
 
+    # Assigning a value to it won't stick,
+    # because it isn't cacheable.
+    b_val = c.the_b = object()
+    assert c.the_b is not b_val
+
     # Configured to use cache.
     a = c.the_a
     assert a is c.the_a
@@ -102,6 +110,10 @@ def test_decorator():
     # Cache can be cleared.
     del c.the_a
     assert a is not c.the_a
+
+    # Cache can also be assigned to.
+    c.the_a = a
+    assert a is c.the_a
 
     # Using an indirect cache.
     assert p.the_c is p.the_c

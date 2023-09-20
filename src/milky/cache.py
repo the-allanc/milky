@@ -72,6 +72,18 @@ class CacheableProperty:
     def __set_name__(self, owner: type, name: str):
         self.name = name
 
+    def can_cache_on(self, instance: Any) -> bool:
+        # No location means we always do it.
+        if self.location is None:
+            return True
+
+        milky = getattr(instance, 'milky', instance)
+        cache = milky.cache
+        try:
+            return bool(cache and cache[self.location])
+        except KeyError:
+            raise AttributeError(self.name) from None
+
     def __get__(self, instance: Any, owner: type):  # noqa: ANN401
         # Use cache if it exists.
         if self.name in instance.__dict__:
@@ -80,21 +92,18 @@ class CacheableProperty:
         # See if we need to store it on the cache.
         result = self.inner(instance)
 
-        # No location means we always do it.
-        if self.location is None:
-            store_cache = True
-        else:
-            milky = getattr(instance, 'milky', instance)
-            cache = milky.cache
-            try:
-                store_cache = cache and cache[self.location]
-            except KeyError:
-                raise AttributeError(self.name) from None
-
-        if store_cache:
+        if self.can_cache_on(instance):
             instance.__dict__[self.name] = result
 
         return result
+
+    def __set__(self, instance: Any, value: Any):
+        if self.can_cache_on(instance):
+            instance.__dict__[self.name] = value
+
+    def __delete__(self, instance: Any):
+        if self.name in instance.__dict__:
+            del instance.__dict__[self.name]
 
 
 def cache_controlled(key: str | None) -> Callable:
