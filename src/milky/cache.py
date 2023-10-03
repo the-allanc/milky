@@ -6,8 +6,9 @@ from typing import Any, Callable
 
 class Cache:
     DEFAULTS = (
+        ('settings', True),
+        ('settings.timezone', True),
         ('timeline', True),
-        ('timezone', True),
     )
 
     __slots__ = ['_settings']

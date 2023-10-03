@@ -45,3 +45,13 @@ class Milky:
     @cache_controlled('timeline')
     def timeline(self) -> str:
         return self.invoke('rtm.timelines.create').text
+
+    @cache_controlled('settings')
+    def _settings(self) -> Bottle:
+        settings = self.invoke('rtm.settings.getList')
+        self.timezone = settings.timezone
+        return settings
+
+    @cache_controlled('settings.timezone')
+    def timezone(self) -> str:
+        return self._settings.timezone
