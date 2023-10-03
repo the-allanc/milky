@@ -82,7 +82,7 @@ class CacheableProperty:
         try:
             return bool(cache and cache[self.location])
         except KeyError:
-            raise AttributeError(self.name) from None
+            raise AttributeError(self.location) from None
 
     def __get__(self, instance: Any, owner: type):  # noqa: ANN401
         # Use cache if it exists.
