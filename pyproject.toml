@@ -19,7 +19,6 @@ mypy = "^0.961"
 flakeheaven = "^2.0.0"
 flake8-warnings = "^0.2.1"
 dlint = "^0.12.0"
-flake8-bandit = "^3.0.0"
 flake8-use-fstring = "^1.3"
 flake8-expression-complexity = "^0.0.11"
 flake8-noqa = "^1.2.5"
@@ -49,12 +48,10 @@ show_missing = true
 skip-string-normalization = true
 
 [tool.flakeheaven.plugins]
-pycodestyle = ["+*"]
 pyflakes = ["+*"]
 pylint = ["+*"]
 flake8-warnings = ["+*"]
 dlint = ["+*"]
-flake8-bandit = ["+*", "-S101", "-S303"]
 flake8-use-fstring = ["+*"]
 flake8-cognitive-complexity = ["+*"]
 flake8-expression-complexity = ["+*"]
