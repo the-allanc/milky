@@ -48,8 +48,7 @@ show_missing = true
 skip-string-normalization = true
 
 [tool.flakeheaven.plugins]
-pyflakes = ["+*"]
-pylint = ["+*"]
+pylint = ["+*"] # https://github.com/astral-sh/ruff/issues/970
 flake8-warnings = ["+*"]
 dlint = ["+*"]
 flake8-use-fstring = ["+*"]
