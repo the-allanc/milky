@@ -31,9 +31,9 @@ mkdocs = "^1.3.0"
 mkdocstrings = {extras = ["python"], version = "*"}
 mkdocs-material = "^9.2.2"
 ruff = "^0.0.282"
-vcrpy = {git = "https://github.com/the-allanc/vcrpy.git", rev = "httpx-cassette-compatibility"}
 ipython = "8.12.1"
 ipdb = "^0.13.13"
+vcrpy = "^6.0.1"
 
 [tool.coverage.paths]
 source = ["src"]

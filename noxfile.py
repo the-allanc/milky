@@ -19,9 +19,6 @@ locations = 'src', 'tests', 'noxfile.py'
 def tests(session, extralibs=['httpx']):  # noqa: B006
     session.install(".")
     session.install(
-        "vcrpy @ git+https://github.com/the-allanc/vcrpy.git@httpx-cassette-compatibility"
-    )
-    session.install(
         "pytest", "pytest-cov", "pytest-recording", "typeguard", "typing_extensions"
     )
     if extralibs:
