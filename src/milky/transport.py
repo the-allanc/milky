@@ -5,7 +5,6 @@ from __future__ import annotations
 import contextlib
 import enum
 import hashlib
-import os
 import urllib.parse
 import webbrowser
 from dataclasses import dataclass
@@ -20,8 +19,6 @@ from typing import Any, Dict, Sequence, TYPE_CHECKING, Union
 import milky
 
 from milky.cache import cache_controlled
-
-TYPE_CHECKING = TYPE_CHECKING or os.environ.get('TYPE_CHECKING') == '1'
 
 if TYPE_CHECKING:
     import httpx

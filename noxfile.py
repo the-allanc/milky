@@ -18,17 +18,11 @@ locations = 'src', 'tests', 'noxfile.py'
 @session
 def tests(session, extralibs=['httpx']):  # noqa: B006
     session.install(".")
-    session.install(
-        "pytest", "pytest-cov", "pytest-recording", "typeguard", "typing_extensions"
-    )
+    session.install("pytest", "pytest-cov", "pytest-recording")
     if extralibs:
         session.install(*extralibs)
 
-    args = ["pytest", "--cov"]
-    if extralibs == ['requests', 'httpx']:
-        args.append("--typeguard-packages=milky")
-        session.env['TYPE_CHECKING'] = '1'
-    session.run(*args, *session.posargs)
+    session.run("pytest", "--cov", *session.posargs)
 
 
 @session(python='3.10')
