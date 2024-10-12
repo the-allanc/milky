@@ -16,7 +16,7 @@ locations = 'src', 'tests', 'noxfile.py'
 
 
 @session
-def tests(session, extralibs=['httpx']):  # noqa: B006
+def tests(session, extralibs=['requests']):  # noqa: B006
     session.install(".")
     session.install("pytest", "pytest-cov", "pytest-recording")
     if extralibs:
@@ -30,7 +30,6 @@ def tests(session, extralibs=['httpx']):  # noqa: B006
     'extralibs',
     [
         nox.param([], id='noclient'),
-        nox.param(['requests', 'defusedxml'], id='requests-with-defused'),
         nox.param(['requests', 'httpx'], id='both-clients'),
     ],
 )

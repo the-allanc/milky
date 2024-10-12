@@ -9,10 +9,7 @@ import urllib.parse
 import webbrowser
 from dataclasses import dataclass
 
-try:
-    from defusedxml.etree import ElementTree
-except ImportError:
-    from xml.etree import ElementTree  # noqa: RUF100, DUO107, S405
+from xml.etree import ElementTree # noqa: RUF100, DUO107, S405
 
 from typing import Any, Dict, Sequence, TYPE_CHECKING, Union
 

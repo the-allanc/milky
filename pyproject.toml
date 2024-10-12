@@ -14,7 +14,6 @@ coverage = {extras = ["toml"], version = "*"}
 pytest-cov = "*"
 requests = "*"
 httpx = "*"
-defusedxml = "*"
 mypy = "^0.961"
 flakeheaven = "^2.0.0"
 flake8-warnings = "^0.2.1"
@@ -62,10 +61,6 @@ docstring_convention = "google"
 
 [tool.mypy]
 strict_optional = false
-
-[[tool.mypy.overrides]]
-module = "defusedxml.etree"
-ignore_missing_imports = true
 
 [tool.ruff]
 select = ["ALL"]
