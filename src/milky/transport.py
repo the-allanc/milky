@@ -9,22 +9,22 @@ import urllib.parse
 import webbrowser
 from dataclasses import dataclass
 
-from xml.etree import ElementTree # noqa: RUF100, DUO107, S405
+from typing import Any, TYPE_CHECKING, Union
 
-from typing import Any, Dict, Sequence, TYPE_CHECKING, Union
+from xml.etree import ElementTree as ETree  # noqa: RUF100, DUO107, S405
 
 import milky
 
 from milky.cache import cache_controlled
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import httpx
     import requests
-    from typing_extensions import TypeAlias  # noqa: TCH002
 
     Response = Union[requests.models.Response, httpx.Response]
-    Element: TypeAlias = ElementTree.Element  # pytype: disable=invalid-annotation
-    ResponseContent = Union[Element, Dict[str, Any]]
+    ResponseContent = Union[ETree.Element, dict[str, Any]]
     Client = Union[requests.Session, httpx.Client]
 
 
@@ -65,7 +65,7 @@ class Identity:
     fullname: str
 
     @staticmethod
-    def from_response(resp: Element) -> Identity:
+    def from_response(resp: ETree.Element) -> Identity:
         """Create an Identity object from an `Element` object."""
         u = resp.find('auth/user').attrib
         return Identity(
@@ -129,8 +129,10 @@ class Transport:
 
         self.client = client
 
-    def invoke(self, method: str, **kwargs: str | int | bool) -> ResponseContent:
-        """Invokes a RTM method.
+    def invoke_request(self, method: str, **kwargs: str | int | bool) -> Response:
+        """Invokes a RTM method and returns the HTTP response. This method is
+        mainly provided for overriding and debugging purposes - the "invoke" and
+        "invoke_json" methods are preferable as they decode the response.
 
         Parameters to pass the method should be given as keyword arguments.
         Some parameters have special behaviours in this method:
@@ -139,21 +141,15 @@ class Transport:
             be done first.
           * If "auth_token" is set to False, this will be treated as an
             unauthenticated method call.
-          * If "format" is set to "json", then this will return JSON content.
           * "version" defaults to "2" unless overridden.
 
         Args:
           method: The name of the RTM method to invoke (e.g "rtm.test.echo").
           **kwargs: Parameters to send for the method.
 
-        Returns:
-          An Element object that represents the response - unless "format"
-            was specified as "json", then a JSON-decoded dictionary will be
-            returned.
-
         Raises:
-          ResponseError: if Remember The Milk returns an error response.
           RuntimeError: if authentication is required, but no token is given.
+          HTTPError: if an HTTP error occurs handling the response.
         """
         if kwargs.get('auth_token') is False:
             del kwargs['auth_token']
@@ -163,31 +159,65 @@ class Transport:
             kwargs.setdefault('auth_token', self.token)
 
         kwargs.setdefault('v', 2)
-        is_json = kwargs.get('format') == 'json'
-
         params = self.sign_params(method=method, **kwargs)
 
         resp = self.client.get(
             self.REST_URL, params=dict(params), headers={"cache-control": "no-cache"}
         )
         resp.raise_for_status()
+        return resp
 
-        return self._process_response(resp, is_json)
+    def invoke(self, method: str, **kwargs: str | int | bool) -> ETree.Element:
+        """Invokes a RTM method, decodes the HTTP response and returns the content
+        as an XML element.
 
-    @staticmethod
-    def _process_response(resp: Response, is_json: bool) -> ResponseContent:
-        err = None
+        The behaviour of this method is the same as `invoke_request` - the specific
+        details of that method also apply here.
 
-        if is_json:
-            result = resp.json()  # noqa: RUF100, S303
-            if result['rsp']['stat'] == 'fail':
-                err = result['rsp']['err']
-        else:
-            result = ElementTree.fromstring(resp.text)  # noqa: S314
-            if result.get('stat') == 'fail':
-                err = result.find('err')
+        Args:
+          method: The name of the RTM method to invoke (e.g "rtm.test.echo").
+          **kwargs: Parameters to send for the method.
 
-        if err is not None:
+        Raises:
+          RuntimeError: if authentication is required, but no token is given.
+          HTTPError: if an HTTP error occurs handling the response.
+          ResponseError: if RTM reports an error in the response.
+        """
+        if kwargs.get('format') not in [None, 'xml']:
+            raise ValueError('invalid format given')
+
+        resp = self.invoke_request(method, **kwargs)
+        result = ETree.fromstring(resp.text)  # noqa: S314
+        if result.get('stat') == 'fail':
+            err = result.find('err')
+            raise ResponseError(result, int(err.get('code')), err.get('msg'))
+
+        return result
+
+    def invoke_json(self, method: str, **kwargs: str | int | bool) -> dict[str, Any]:
+        """Invokes a RTM method, decodes the HTTP response and returns the content
+        as a JSON-decoded structure.
+
+        The behaviour of this method is the same as `invoke_request` - the specific
+        details of that method also apply here.
+
+        Args:
+          method: The name of the RTM method to invoke (e.g "rtm.test.echo").
+          **kwargs: Parameters to send for the method.
+
+        Raises:
+          RuntimeError: if authentication is required, but no token is given.
+          HTTPError: if an HTTP error occurs handling the response.
+          ResponseError: if RTM reports an error in the response.
+        """
+        if kwargs.get('format') not in [None, 'json']:
+            raise ValueError('invalid format given')
+
+        resp = self.invoke_request(method, format='json', **kwargs)
+
+        result = resp.json()  # noqa: RUF100, S303
+        if result['rsp']['stat'] == 'fail':
+            err = result['rsp']['err']
             raise ResponseError(result, int(err.get('code')), err.get('msg'))
 
         return result
@@ -226,7 +256,7 @@ class Transport:
         with contextlib.suppress(AttributeError):
             del self.whoami
 
-    def __check_token(self) -> Element | None:
+    def __check_token(self) -> ETree.Element | None:
         if not self._token:
             return None
         try:
@@ -294,7 +324,7 @@ class Transport:
         """
         params = {}
         if not webapp:
-            rsp: Element = self.invoke('rtm.auth.getFrob', auth_token=False)
+            rsp: ETree.Element = self.invoke('rtm.auth.getFrob', auth_token=False)
             self.token = None
             params['frob'] = self.frob = rsp.find('frob').text
 
@@ -316,7 +346,7 @@ class Transport:
         """
         if not self.frob:
             raise RuntimeError('must call start_auth first')
-        resp: Element = self.invoke(
+        resp: ETree.Element = self.invoke(
             'rtm.auth.getToken', frob=self.frob, auth_token=False
         )
         self.token = resp.find('auth/token').text
