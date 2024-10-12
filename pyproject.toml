@@ -1,3 +1,6 @@
+[project]
+requires-python = ">= 3.10"
+
 [tool.poetry]
 name = "milky"
 version = "0.1.0"
@@ -5,7 +8,7 @@ description = ""
 authors = ["Allan Crooks <allan@sixtyten.org>"]
 
 [tool.poetry.dependencies]
-python = ">= 3.8, < 4"
+python = ">= 3.10, < 4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
