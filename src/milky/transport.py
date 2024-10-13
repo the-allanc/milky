@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     Response = requests.models.Response | httpx.Response
     ResponseContent = ET.Element | dict[str, Any]
     Client = requests.Session | httpx.Client
+    ParamType = int | str
 
 
 def _efind(elem: ET.Element, expr: str) -> ET.Element:
@@ -136,7 +137,7 @@ class Transport:
 
         self.client = client
 
-    def invoke_request(self, method: str, **kwargs: str | int | bool) -> Response:
+    def invoke_request(self, method: str, **kwargs: ParamType) -> Response:
         """Invokes a RTM method and returns the HTTP response. This method is
         mainly provided for overriding and debugging purposes - the "invoke" and
         "invoke_json" methods are preferable as they decode the response.
@@ -174,7 +175,7 @@ class Transport:
         resp.raise_for_status()
         return resp
 
-    def invoke(self, method: str, **kwargs: str | int | bool) -> ET.Element:
+    def invoke(self, method: str, **kwargs: ParamType) -> ET.Element:
         """Invokes a RTM method, decodes the HTTP response and returns the content
         as an XML element.
 
@@ -201,7 +202,7 @@ class Transport:
 
         return result
 
-    def invoke_json(self, method: str, **kwargs: str | int | bool) -> dict[str, Any]:
+    def invoke_json(self, method: str, **kwargs: ParamType) -> dict[str, Any]:
         """Invokes a RTM method, decodes the HTTP response and returns the content
         as a JSON-decoded structure.
 
@@ -229,7 +230,7 @@ class Transport:
 
         return result
 
-    def sign_params(self, **params: str | int) -> Sequence[tuple[str, str | int]]:
+    def sign_params(self, **params: str | int) -> Sequence[tuple[str, ParamType]]:
         """Sign some parameters for Remember The Milk.
 
         Given some key-value parameters to send to Remember The Milk,

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from milky.root import Milky
+    from milky.transport import ParamType
 
 
 @dataclass
@@ -131,9 +132,7 @@ class Crate(abc.ABC):
             raise ValueError(type(bottle))
         self.bottle = bottle
 
-    def __call__(
-        self, method: str, action: Action, /, **params: bool | int | str
-    ) -> Bottle:
+    def __call__(self, method: str, action: Action, /, **params: ParamType) -> Bottle:
         """
         Invoke a method against this object.
 
@@ -164,7 +163,7 @@ class Crate(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def identity(self) -> dict[str, str | int | bool]:
+    def identity(self) -> dict[str, ParamType]:
         """
         Return a dictionary of key-value pairs that are needed to
         identify this object when making calls to RTM.
