@@ -24,7 +24,7 @@ def pytest_recording_configure(config, vcr):
     vcr.decode_compressed_response = True
 
 
-@pytest.fixture()
+@pytest.fixture
 def vcr_config():
     # Default configuration for VCR is to strip out those parameters
     # and to force record when there are cassettes missing.
@@ -34,7 +34,7 @@ def vcr_config():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def t_params():
     path = Path(__file__).parent / 'credentials' / 'user.yaml'
     if not path.exists():
