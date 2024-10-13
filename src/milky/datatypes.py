@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
-from milky.transport import ElementTree
+from xml.etree import ElementTree as ET
 
 
 @dataclass
@@ -26,10 +26,10 @@ class Bottle:
     a child element with that tag and return the text of it.
     """
 
-    element: ElementTree.Element
+    element: ET.Element
 
     def __post_init__(self):
-        if not isinstance(self.element, ElementTree.Element):
+        if not isinstance(self.element, ET.Element):
             raise TypeError(type(self.element))
 
     def __getitem__(self, name: str) -> str:
@@ -85,4 +85,4 @@ class Bottle:
         return self.element.text
 
     def __str__(self) -> str:
-        return ElementTree.tostring(self.element, encoding='unicode')
+        return ET.tostring(self.element, encoding='unicode')

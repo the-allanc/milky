@@ -6,7 +6,7 @@ from .cache import Cache, cache_controlled
 from .datatypes import Bottle
 
 if typing.TYPE_CHECKING:
-    from .transport import ElementTree, Transport
+    from xml.etree import ElementTree as ET
 
 
 class Milky:
@@ -28,10 +28,10 @@ class Milky:
         return Bottle(self._unwrap_response(res) if unwrap else res)
 
     @staticmethod
-    def _unwrap_response(res: ElementTree.Element) -> ElementTree.Element:
+    def _unwrap_response(res: ET.Element) -> ET.Element:
         # If they want content, we'll have to extract it.
         if res.tag != 'rsp':
-            msg = f'Response has tag "{res.element.tag}" rather than "rsp"'
+            msg = f'Response has tag "{res.tag}" rather than "rsp"'
             raise RuntimeError(msg)
 
         # We expect at most one child element which is not a transaction.

@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from typing import Any, TYPE_CHECKING, Union
 
-from xml.etree import ElementTree as ETree  # noqa: RUF100, DUO107, S405
+from xml.etree import ElementTree as ET  # noqa: RUF100, DUO107, S405
 
 import milky
 
@@ -26,6 +26,11 @@ if TYPE_CHECKING:
     Response = Union[requests.models.Response, httpx.Response]
     ResponseContent = Union[ETree.Element, dict[str, Any]]
     Client = Union[requests.Session, httpx.Client]
+
+def _efind(elem: ET.Element, expr: str) -> ET.Element:
+    if (res := elem.find(expr)) is None:
+        raise RuntimeError(f'did not find expected element "{expr}"')
+    return res
 
 
 def _client_maker() -> Client | None:
@@ -65,11 +70,12 @@ class Identity:
     fullname: str
 
     @staticmethod
-    def from_response(resp: ETree.Element) -> Identity:
+    def from_response(resp: ET.Element) -> Identity:
         """Create an Identity object from an `Element` object."""
-        u = resp.find('auth/user').attrib
+        u = _efind(resp, 'auth/user').attrib
+
         return Identity(
-            perms=resp.find('auth/perms').text,
+            perms=_efind(resp, 'auth/perms').text,
             user_id=int(u['id']),
             username=u['username'],
             fullname=u['fullname'],
@@ -167,7 +173,7 @@ class Transport:
         resp.raise_for_status()
         return resp
 
-    def invoke(self, method: str, **kwargs: str | int | bool) -> ETree.Element:
+    def invoke(self, method: str, **kwargs: str | int | bool) -> ET.Element:
         """Invokes a RTM method, decodes the HTTP response and returns the content
         as an XML element.
 
@@ -187,9 +193,9 @@ class Transport:
             raise ValueError('invalid format given')
 
         resp = self.invoke_request(method, **kwargs)
-        result = ETree.fromstring(resp.text)  # noqa: S314
+        result = ET.fromstring(resp.text)  # noqa: S314
         if result.get('stat') == 'fail':
-            err = result.find('err')
+            err = _efind(result, 'err')
             raise ResponseError(result, int(err.get('code')), err.get('msg'))
 
         return result
@@ -256,7 +262,7 @@ class Transport:
         with contextlib.suppress(AttributeError):
             del self.whoami
 
-    def __check_token(self) -> ETree.Element | None:
+    def __check_token(self) -> ET.Element | None:
         if not self._token:
             return None
         try:
@@ -324,9 +330,9 @@ class Transport:
         """
         params = {}
         if not webapp:
-            rsp: ETree.Element = self.invoke('rtm.auth.getFrob', auth_token=False)
+            rsp: ET.Element = self.invoke('rtm.auth.getFrob', auth_token=False)
             self.token = None
-            params['frob'] = self.frob = rsp.find('frob').text
+            params['frob'] = self.frob = _efind(rsp, 'frob').text
 
         param_pairs = self.sign_params(perms=perms, **params)
         url = self.AUTH_URL + '?' + urllib.parse.urlencode(param_pairs)
@@ -346,8 +352,8 @@ class Transport:
         """
         if not self.frob:
             raise RuntimeError('must call start_auth first')
-        resp: ETree.Element = self.invoke(
+        resp: ET.Element = self.invoke(
             'rtm.auth.getToken', frob=self.frob, auth_token=False
         )
-        self.token = resp.find('auth/token').text
+        self.token = _efind(resp, 'auth/token').text
         self.whoami = Identity.from_response(resp)
