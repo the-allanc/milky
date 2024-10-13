@@ -107,10 +107,19 @@ class Action(enum.Enum):
 
 
 class Crate(abc.ABC):
+    """Base class which represents a RTM object that pulls its information
+    from a XML element."""
 
     bottle_class = Bottle
 
     def __init__(self, milky: Milky, bottle: ET.Element | Bottle):
+        """
+        Construct a Crate object.
+
+        Args:
+            milky: Milky object that the object should be attached to.
+            bottle: The XML element which describes the object.
+        """
         self.milky = milky
         if isinstance(bottle, ET.Element):
             bottle = self.bottle_class(bottle)
@@ -125,14 +134,30 @@ class Crate(abc.ABC):
     def __call__(
         self, method: str, action: Action, /, **params: bool | int | str
     ) -> Bottle:
+        """
+        Invoke a method against this object.
+
+        Args:
+          method: The name of the RTM method to invoke (e.g "rtm.test.echo").
+          action: Indicates the type of method that is being invoked.
+          **params: Parameters to send for the method.
+
+        Raises:
+          RuntimeError: if authentication is required, but no token is given.
+          HTTPError: if an HTTP error occurs handling the response.
+          ResponseError: if RTM reports an error in the response.
+        """
         params.update(self.identity)
 
         result = self.milky.invoke(
             method, action is not Action.READ, unwrap=True, **params
         )
 
-        if action is Action.UPDATE and self.bottle_class is not Bottle:
-            self.bottle = self.bottle_class(result.element)
+        if action is Action.UPDATE:
+            # Re-wrap it if we need to.
+            if self.bottle_class is not Bottle:
+                result = self.bottle_class(result.element)
+            self.bottle = result
             return self.bottle
 
         return result
@@ -140,4 +165,7 @@ class Crate(abc.ABC):
     @property
     @abc.abstractmethod
     def identity(self) -> dict[str, str | int | bool]:
-        pass
+        """
+        Return a dictionary of key-value pairs that are needed to
+        identify this object when making calls to RTM.
+        """
