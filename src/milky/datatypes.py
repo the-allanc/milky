@@ -1,6 +1,9 @@
 """Common datastructures used by Milky."""
 from __future__ import annotations
 
+import abc
+import enum
+
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -8,6 +11,8 @@ from xml.etree import ElementTree as ET
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from milky.root import Milky
 
 
 @dataclass
@@ -89,3 +94,50 @@ class Bottle:
 
     def __str__(self) -> str:
         return ET.tostring(self.element, encoding='unicode')
+
+
+class Action(enum.Enum):
+    """Indicates what type of action we want to perform with RTM - a
+    read-only operation (READ), a write operation (WRITE), or a write
+    operation that performs an update to an existing object (UPDATE)."""
+
+    READ = enum.auto()
+    WRITE = enum.auto()
+    UPDATE = enum.auto()
+
+
+class Crate(abc.ABC):
+
+    bottle_class = Bottle
+
+    def __init__(self, milky: Milky, bottle: ET.Element | Bottle):
+        self.milky = milky
+        if isinstance(bottle, ET.Element):
+            bottle = self.bottle_class(bottle)
+        elif type(bottle) is self.bottle_class:
+            pass
+        elif isinstance(bottle, Bottle):
+            bottle = self.bottle_class(bottle.element)
+        else:
+            raise ValueError(type(bottle))
+        self.bottle = bottle
+
+    def __call__(
+        self, method: str, action: Action, /, **params: bool | int | str
+    ) -> Bottle:
+        params.update(self.identity)
+
+        result = self.milky.invoke(
+            method, action is not Action.READ, unwrap=True, **params
+        )
+
+        if action is Action.UPDATE and self.bottle_class is not Bottle:
+            self.bottle = self.bottle_class(result.element)
+            return self.bottle
+
+        return result
+
+    @property
+    @abc.abstractmethod
+    def identity(self) -> dict[str, str | int | bool]:
+        pass
