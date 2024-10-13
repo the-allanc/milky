@@ -53,7 +53,7 @@ def test_main():
     assert c['aa.bb.cc'] is True
     assert str(c) == "Cache(aa=on, aa.bb=off, aa.bb.cc=on, dd=off)"
 
-    rep = "Cache({'aa': True, 'aa.bb': False, 'aa.bb.cc': True, 'dd': False})"
+    rep = "Cache({'aa': True, 'aa.bb': False, 'aa.bb.cc': True, 'dd': False})"  # noqa: FS003
     assert repr(c) == rep
 
     # Switch settings.

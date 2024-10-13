@@ -88,7 +88,7 @@ class CacheableProperty:
         except KeyError:
             raise AttributeError(self.location) from None
 
-    def __get__(self, instance: Any, owner: type):  # noqa: ANN401
+    def __get__(self, instance: object, owner: type):
         # Use cache if it exists.
         if self.name in instance.__dict__:
             return instance.__dict__[self.name]
