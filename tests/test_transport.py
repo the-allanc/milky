@@ -25,7 +25,7 @@ class Settings:
 
 
 class TestClient(Settings):
-    @pytest.fixture()
+    @pytest.fixture
     def vcr_config(self):
         return {}
 
@@ -50,7 +50,7 @@ class TestClient(Settings):
             r.start_auth()
 
     @pytest.mark.skipif(has_.requests or has_.httpx, reason='needs no http lib')
-    @pytest.mark.block_network()
+    @pytest.mark.block_network
     def test_no_httplib(self):
         msg = 'cannot import "httpx" or "requests" to create client'
         with pytest.raises(RuntimeError, match=msg):
@@ -63,11 +63,11 @@ needs_httplib = pytest.mark.skipif(has_httplib, reason='needs http lib')
 
 @needs_httplib
 class TestTransport(Settings):
-    @pytest.fixture()
+    @pytest.fixture
     def vcr_config(self):
         return {}
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_desktop_auth(self):
         frob = "85cfb0d6aece75f477f99c1afe4b8d006977244e"
         sig = "d61c462cdf39e5ceea5c30f4997cc19f"
@@ -83,19 +83,19 @@ class TestTransport(Settings):
         assert me.username == 'money.mark'
         assert me.perms == 'delete'
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_invalid_api_key(self):
         r = Transport(self.API_KEY, self.SECRET)
         with pytest.raises(ResponseError):
             r.start_auth()
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_invalid_signature(self):
         r = Transport(self.API_KEY, self.SECRET)
         with pytest.raises(ResponseError):
             r.start_auth()
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_bad_frob(self):
         r = Transport(self.API_KEY, self.SECRET)
         r.start_auth()
@@ -116,14 +116,14 @@ class TestTransport(Settings):
         r.start_auth()
         assert r.whoami is None
 
-    @pytest.mark.block_network()
+    @pytest.mark.block_network
     def test_mobile_auth(self):
         sig = "53a81b6a80e7f6319dd3f30b623a1f2c"
         r = Transport(self.API_KEY, self.SECRET)
         url = r.start_auth(perms="delete", webapp=True)
         assert url == f"{self.AUTH_URL}&perms=delete&api_sig={sig}"
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_given_token(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         assert r.authed
@@ -136,13 +136,13 @@ class TestTransport(Settings):
         assert me.fullname == 'Milky Mark'
         assert me.user_id == user_id
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_given_token_json(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         result = r.invoke_json('rtm.auth.checkToken')
         assert result['rsp']['auth']['perms'] == 'read'
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_bad_token(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         assert not r.authed
@@ -164,7 +164,7 @@ class TestTransport(Settings):
         assert e.value.code == ResponseCodes.LOGIN_FAILED_OR_BAD_TOKEN.value
         assert e.value.response.get('stat') == 'fail'
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_bad_token_json(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         with pytest.raises(
@@ -201,7 +201,7 @@ class TestTransport(Settings):
         assert r.authed
         assert not r.authed
 
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_invoke_with_token(self):
         r = Transport(self.API_KEY, self.SECRET, self.TOKEN)
         resp = r.invoke("rtm.test.login")
@@ -240,7 +240,7 @@ class TestTransport(Settings):
         assert time.attrib['precision'] == 'date'
         assert time.text == '2022-06-19T00:00:00Z'
 
-    @pytest.mark.block_network()
+    @pytest.mark.block_network
     def test_invoke_no_token(self):
         # should just raise an error, no request"
         r = Transport(self.API_KEY, self.SECRET)
@@ -280,7 +280,7 @@ class TestTransport(Settings):
 
 @needs_httplib
 class TestCassetteCredentials:
-    @pytest.mark.vcr()
+    @pytest.mark.vcr
     def test_logged_in(self, t_params):
         # This just tests that we can use cassettes which has
         # credential information stripped out.
