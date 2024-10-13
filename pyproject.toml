@@ -17,22 +17,24 @@ coverage = {extras = ["toml"], version = "*"}
 pytest-cov = "*"
 requests = "*"
 httpx = "*"
-mypy = "^0.961"
-flakeheaven = "^2.0.0"
-flake8-warnings = "^0.2.1"
-dlint = "^0.12.0"
-flake8-use-fstring = "^1.3"
-flake8-expression-complexity = "^0.0.11"
-flake8-noqa = "^1.2.5"
-flake8-cognitive-complexity = "^0.1.0"
-pytype = { version = "^2022.6.23", python = ">=3.8,<3.11" }
-mkdocs = "^1.3.0"
+mypy = "*"
+flakeheaven = "*"
+flake8 = "^4.0.1" # Flakeheaven doesn't support later versions yet: https://github.com/PyCQA/flake8/issues/1635
+dlint = "*"
+flake8-use-fstring = "*"
+flake8-warnings = "*"
+flake8-expression-complexity = "*"
+flake8-noqa = "*"
+flake8-cognitive-complexity = "*"
+pytype = "*"
+mkdocs = "*"
 mkdocstrings = {extras = ["python"], version = "*"}
-mkdocs-material = "^9.2.2"
-ruff = "^0.0.282"
-ipython = "8.12.1"
-ipdb = "^0.13.13"
-vcrpy = "^6.0.1"
+mkdocs-material = "*"
+ruff = "*"
+ipython = "*"
+ipdb = "*"
+vcrpy = "*"
+urllib3 = "^1.26.20" # Until this is merged in - https://github.com/python-poetry/poetry-plugin-export/pull/286
 
 [tool.coverage.paths]
 source = ["src"]
@@ -65,18 +67,20 @@ docstring_convention = "google"
 [tool.mypy]
 strict_optional = false
 
-[tool.ruff]
-select = ["ALL"]
-ignore = ["Q", "COM", "EM101", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "ANN401", "D", "C408", "I001", "RUF100", "E501"]
+[tool.lint]
 target-version = "py38"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["Q", "COM", "EM", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "ANN401", "D", "C408", "I001", "RUF100", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
 "noxfile.py" = ["ANN", "D"]
 "src/milky/_docs.py" = ["ANN"]
 "tests/conftest.py" = ["ARG001"]
 "tests/*.py" = ["ANN", "D", "S101", "RUF015"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [build-system]

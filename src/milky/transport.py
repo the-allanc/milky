@@ -9,7 +9,7 @@ import urllib.parse
 import webbrowser
 from dataclasses import dataclass
 
-from typing import Any, TYPE_CHECKING, Union
+from typing import Any, TYPE_CHECKING
 
 from xml.etree import ElementTree as ET  # noqa: RUF100, DUO107, S405
 
@@ -23,9 +23,10 @@ if TYPE_CHECKING:
     import httpx
     import requests
 
-    Response = Union[requests.models.Response, httpx.Response]
-    ResponseContent = Union[ETree.Element, dict[str, Any]]
-    Client = Union[requests.Session, httpx.Client]
+    Response = requests.models.Response | httpx.Response
+    ResponseContent = ET.Element | dict[str, Any]
+    Client = requests.Session | httpx.Client
+
 
 def _efind(elem: ET.Element, expr: str) -> ET.Element:
     if (res := elem.find(expr)) is None:

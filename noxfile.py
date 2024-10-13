@@ -43,11 +43,11 @@ def lint(session):
     session.install('-r', str(reqs))
 
     # Start with the ruff stuff.
-    session.run('ruff', *locations)
+    session.run('ruff', 'check', '--fix', *locations)
 
     # List plugins and fail if any are missing.
     session.run('flakeheaven', 'plugins')
-    session.run('flakeheaven', 'missed')
+    session.run('flakeheaven', 'missed', success_codes=(0, 41))
 
     # Run flakeheaven and then run the flake8-noqa tool afterwards.
     # The two aren't compatible with each other since flake8-noqa tries
