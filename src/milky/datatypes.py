@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 from xml.etree import ElementTree as ET
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 @dataclass

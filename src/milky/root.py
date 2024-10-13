@@ -8,6 +8,8 @@ from .datatypes import Bottle
 if typing.TYPE_CHECKING:
     from xml.etree import ElementTree as ET
 
+    from .transport import Transport
+
 
 class Milky:
     def __init__(self, transport: Transport):

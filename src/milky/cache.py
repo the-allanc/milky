@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Callable
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Cache:
