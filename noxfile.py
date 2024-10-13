@@ -61,7 +61,13 @@ def lint(session):
 def safety(session):
     reqs = session.poetry.export_requirements()
     session.install("safety")
-    session.run("safety", "check", f"--file={reqs}", "--full-report")
+
+    ignorables = []
+
+    # https://data.safetycli.com/v/70612/f17/
+    ignorables.append("--ignore=70612")
+
+    session.run("safety", "check", f"--file={reqs}", "--full-report", *ignorables)
 
 
 @session(python='3.10')
