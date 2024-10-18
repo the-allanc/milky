@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from functools import partial
-from typing import Any, TYPE_CHECKING
+from typing import Any, Generic, TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+T = TypeVar('T')
 
 
 class Cache:
@@ -65,11 +66,11 @@ class CacheView:
         return f"CacheView({self.key!r})"
 
 
-class CacheableProperty:
+class CacheableProperty(Generic[T]):
 
     name: str
 
-    def __init__(self, location: str | None, inner: Callable):
+    def __init__(self, location: str | None, inner: Callable[..., T]):
         self.location = location
         self.inner = inner
 
@@ -88,7 +89,7 @@ class CacheableProperty:
         except KeyError:
             raise AttributeError(self.location) from None
 
-    def __get__(self, instance: object, owner: type):
+    def __get__(self, instance: object, owner: type) -> T:
         # Use cache if it exists.
         if self.name in instance.__dict__:
             return instance.__dict__[self.name]
@@ -110,5 +111,13 @@ class CacheableProperty:
             del instance.__dict__[self.name]
 
 
-def cache_controlled(key: str | None) -> Callable:
-    return partial(CacheableProperty, key)
+def cache_controlled(
+    key: str | None,
+) -> Callable[[Callable[..., T]], CacheableProperty[T]]:
+    # We don't use functools.partial, because we want to
+    # be more specific with the type signature of the parameters
+    # being passed to us.
+    def cache_decorator(f: Callable[..., T]) -> CacheableProperty[T]:
+        return CacheableProperty(key, f)
+
+    return cache_decorator
