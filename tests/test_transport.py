@@ -1,17 +1,7 @@
-import types
-
 import pytest
 from milky.transport import ResponseCodes, ResponseError, Transport
 
-has_ = types.SimpleNamespace()
-
-for module in ['requests', 'httpx']:
-    try:
-        __import__(module)
-        setattr(has_, module, True)
-    except ImportError:  # noqa: PERF203
-        setattr(has_, module, False)
-del module, types
+from . import has_, needs_httplib
 
 
 class Settings:
@@ -55,10 +45,6 @@ class TestClient(Settings):
         msg = 'cannot import "httpx" or "requests" to create client'
         with pytest.raises(RuntimeError, match=msg):
             Transport(self.API_KEY, self.SECRET)
-
-
-has_httplib = not (has_.requests or has_.httpx)
-needs_httplib = pytest.mark.skipif(has_httplib, reason='needs http lib')
 
 
 @needs_httplib
