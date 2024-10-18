@@ -4,7 +4,7 @@ from __future__ import annotations
 import enum
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import overload, TYPE_CHECKING
 
 from xml.etree import ElementTree as ET
 
@@ -167,3 +167,23 @@ class Crate:
         identify this object when making calls to RTM.
         """
         return {}
+
+
+class BottleProperty:
+    def __init__(self, attr: str) -> None:
+        self.attr = attr
+
+    @overload
+    def __get__(self, instance: None, owner: None) -> BottleProperty:
+        ...
+
+    @overload
+    def __get__(self, instance: Crate, owner: type[Crate]) -> str | None:
+        ...
+
+    def __get__(
+        self, instance: Crate | None, owner: type[Crate] | None
+    ) -> BottleProperty | str | None:
+        if instance is None:
+            return self
+        return getattr(instance.bottle, self.attr) or None

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+from . import models
+
 from .cache import Cache, cache_controlled
 from .datatypes import Bottle
 
@@ -49,11 +51,12 @@ class Milky:
         return self.invoke('rtm.timelines.create').text
 
     @cache_controlled('settings')
-    def _settings(self) -> Bottle:
-        settings = self.invoke('rtm.settings.getList')
+    def settings(self) -> models.Settings:
+        settings_data = self.invoke('rtm.settings.getList')
+        settings = models.Settings(self, settings_data)
         self.timezone = settings.timezone
         return settings
 
     @cache_controlled('settings.timezone')
     def timezone(self) -> str:
-        return self._settings.timezone
+        return self.settings.timezone

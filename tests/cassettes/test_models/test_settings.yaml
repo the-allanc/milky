@@ -1,0 +1,50 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.settings.getList&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><settings><timezone>Europe/London</timezone><dateformat>0</dateformat><timeformat>0</timeformat><defaultlist></defaultlist><defaultduedate>today</defaultduedate><pro>0</pro><language>en-GB</language></settings></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8d3b51ebbb7091ee-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Wed, 16 Oct 2024 22:00:08 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '269'
+      x-s-t:
+      - 0 5
+    status:
+      code: 200
+      message: OK
+version: 1
