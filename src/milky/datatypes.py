@@ -1,7 +1,6 @@
 """Common datastructures used by Milky."""
 from __future__ import annotations
 
-import abc
 import enum
 
 from dataclasses import dataclass
@@ -107,7 +106,7 @@ class Action(enum.Enum):
     UPDATE = enum.auto()
 
 
-class Crate(abc.ABC):
+class Crate:
     """Base class which represents a RTM object that pulls its information
     from a XML element."""
 
@@ -162,9 +161,9 @@ class Crate(abc.ABC):
         return result
 
     @property
-    @abc.abstractmethod
     def identity(self) -> dict[str, ParamType]:
         """
         Return a dictionary of key-value pairs that are needed to
         identify this object when making calls to RTM.
         """
+        return {}
