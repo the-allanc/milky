@@ -58,5 +58,5 @@ class Milky:
         return settings
 
     @cache_controlled('settings.timezone')
-    def timezone(self) -> str:
+    def timezone(self) -> str | None:
         return self.settings.timezone

@@ -4,12 +4,12 @@ from __future__ import annotations
 import enum
 
 from dataclasses import dataclass
-from typing import overload, TYPE_CHECKING
+from typing import Generic, overload, TYPE_CHECKING, TypeVar
 
 from xml.etree import ElementTree as ET
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from milky.root import Milky
     from milky.transport import ParamType
@@ -173,21 +173,29 @@ class Crate:
         return {}
 
 
-class BottleProperty:
-    def __init__(self, attr: str) -> None:
+T = TypeVar('T')
+
+
+class BottleDescriptor(Generic[T]):
+
+    loader: Callable[[str], T]
+
+    def __init__(self, attr: str, loader: Callable[[str], T]) -> None:
         self.attr = attr
+        self.loader = loader
 
     @overload
-    def __get__(self, instance: None, owner: None) -> BottleProperty:
+    def __get__(self, instance: None, owner: None) -> BottleDescriptor:
         ...
 
     @overload
-    def __get__(self, instance: Crate, owner: type[Crate]) -> str | None:
+    def __get__(self, instance: Crate, owner: type[Crate]) -> T:
         ...
 
     def __get__(
         self, instance: Crate | None, owner: type[Crate] | None
-    ) -> BottleProperty | str | None:
+    ) -> BottleDescriptor | T:
         if instance is None:
             return self
-        return getattr(instance.bottle, self.attr) or None
+        value = getattr(instance.bottle, self.attr)
+        return self.loader(value)

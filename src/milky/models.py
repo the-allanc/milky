@@ -1,11 +1,12 @@
-from milky.datatypes import BottleProperty, Crate
+from milky import rtmtypes
+from milky.datatypes import Crate
 
 
 class Settings(Crate):
-    timezone: BottleProperty = BottleProperty('timezone/')
-    date_format: BottleProperty = BottleProperty('dateformat/')
-    time_format: BottleProperty = BottleProperty('timeformat/')
-    language: BottleProperty = BottleProperty('language/')
-    pro: BottleProperty = BottleProperty('pro/')
-    default_due_date: BottleProperty = BottleProperty('defaultduedate/')
-    default_list_id: BottleProperty = BottleProperty('defaultlist/')
+    timezone = rtmtypes.OptionalStr('timezone/')
+    date_format = rtmtypes.Int('dateformat/')
+    time_format = rtmtypes.Int('timeformat/')
+    language = rtmtypes.Str('language/')
+    pro = rtmtypes.Bool('pro/')
+    default_due_date = rtmtypes.OptionalStr('defaultduedate/')
+    default_list_id = rtmtypes.OptionalInt('defaultlist/')
