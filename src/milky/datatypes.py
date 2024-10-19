@@ -40,7 +40,7 @@ class Bottle:
         if not isinstance(self.element, ET.Element):
             raise TypeError(type(self.element))
 
-    def __getitem__(self, name: str) -> str:
+    def _resolve_element_and_attr(self, name: str) -> tuple[ET.Element, str]:
         subpath, _, attr = name.rpartition('/')
 
         element: ET.Element = self.element
@@ -49,6 +49,11 @@ class Bottle:
             if (subelement := element.find(subpath)) is None:
                 raise KeyError(name)
             element = subelement
+
+        return element, attr
+
+    def __getitem__(self, name: str) -> str:
+        element, attr = self._resolve_element_and_attr(name)
 
         if not attr:
             return element.text or ''
