@@ -42,16 +42,20 @@ class Bottle:
 
     def __getitem__(self, name: str) -> str:
         subpath, _, attr = name.rpartition('/')
-        element = self.element
-        if subpath and (element := element.find(subpath)) is None:
-            raise KeyError(name)
+
+        element: ET.Element = self.element
+
+        if subpath:
+            if (subelement := element.find(subpath)) is None:
+                raise KeyError(name)
+            element = subelement
 
         if not attr:
-            return element.text
+            return element.text or ''
         if attr in element.attrib:
             return element.attrib[attr]
-        if (element := element.find(attr)) is not None:
-            return element.text
+        if (subelement := element.find(attr)) is not None:
+            return subelement.text or ''
         raise KeyError(name)
 
     def __getattr__(self, name: str) -> str:
@@ -90,7 +94,7 @@ class Bottle:
     @property
     def text(self) -> str:
         """The text of the element itself."""
-        return self.element.text
+        return self.element.text or ''
 
     def __str__(self) -> str:
         return ET.tostring(self.element, encoding='unicode')

@@ -7,8 +7,8 @@ import enum
 import hashlib
 import urllib.parse
 import webbrowser
-from dataclasses import dataclass
 
+from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
 from xml.etree import ElementTree as ET  # noqa: RUF100, DUO107, S405
@@ -61,6 +61,14 @@ class ResponseError(Exception):
     def __str__(self) -> str:
         return f'{self.code}: {self.message}'
 
+    @classmethod
+    def from_response(
+        cls: type, response: ResponseContent, err_obj: ET.Element | dict[str, str]
+    ) -> ResponseError:
+        code = int(err_obj.get('code', '0'))
+        message = err_obj.get('msg', 'Unknown error')
+        return cls(response, code, message)
+
 
 @dataclass(frozen=True)
 class Identity:
@@ -77,7 +85,7 @@ class Identity:
         u = _efind(resp, 'auth/user').attrib
 
         return Identity(
-            perms=_efind(resp, 'auth/perms').text,
+            perms=_efind(resp, 'auth/perms').text or '',
             user_id=int(u['id']),
             username=u['username'],
             fullname=u['fullname'],
@@ -198,7 +206,7 @@ class Transport:
         result = ET.fromstring(resp.text)  # noqa: S314
         if result.get('stat') == 'fail':
             err = _efind(result, 'err')
-            raise ResponseError(result, int(err.get('code')), err.get('msg'))
+            raise ResponseError.from_response(result, err)
 
         return result
 
@@ -226,7 +234,7 @@ class Transport:
         result = resp.json()  # noqa: RUF100, S303
         if result['rsp']['stat'] == 'fail':
             err = result['rsp']['err']
-            raise ResponseError(result, int(err.get('code')), err.get('msg'))
+            raise ResponseError.from_response(result, err)
 
         return result
 
@@ -334,7 +342,8 @@ class Transport:
         if not webapp:
             rsp: ET.Element = self.invoke('rtm.auth.getFrob', auth_token=False)
             self.token = None
-            params['frob'] = self.frob = _efind(rsp, 'frob').text
+            frob = _efind(rsp, 'frob').text or ''
+            params['frob'] = self.frob = frob
 
         param_pairs = self.sign_params(perms=perms, **params)
         url = self.AUTH_URL + '?' + urllib.parse.urlencode(param_pairs)

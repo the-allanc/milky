@@ -64,9 +64,6 @@ show_source = true
 extend_select = ["B9"]
 docstring_convention = "google"
 
-[tool.mypy]
-strict_optional = false
-
 [tool.lint]
 target-version = "py38"
 
