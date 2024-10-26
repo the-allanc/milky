@@ -52,11 +52,8 @@ class Milky:
 
     @cache_controlled('settings')
     def settings(self) -> models.Settings:
-        settings_data = self.invoke('rtm.settings.getList')
-        settings = models.Settings(self, settings_data)
-        self.timezone = settings.timezone
-        return settings
+        return models.Settings(self)
 
-    @cache_controlled('settings.timezone')
+    @property
     def timezone(self) -> str | None:
         return self.settings.timezone

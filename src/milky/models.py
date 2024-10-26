@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 from milky import rtmtypes
-from milky.datatypes import Crate
+from milky.datatypes import Bottle, DynamicCrate
 
 
-class Settings(Crate):
+class Settings(DynamicCrate):
+    def _load_content(self) -> Bottle:
+        return self.milky.invoke('rtm.settings.getList')
+
     timezone = rtmtypes.OptionalStr('timezone/')
     date_format = rtmtypes.Int('dateformat/')
     time_format = rtmtypes.Int('timeformat/')

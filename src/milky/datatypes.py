@@ -1,8 +1,9 @@
 """Common datastructures used by Milky."""
 from __future__ import annotations
 
-import enum
+import abc
 
+import enum
 from dataclasses import dataclass
 from typing import Generic, overload, TYPE_CHECKING, TypeVar
 
@@ -121,15 +122,21 @@ class Crate:
 
     bottle_class = Bottle
 
-    def __init__(self, milky: Milky, bottle: ET.Element | Bottle):
+    def __init__(self, milky: Milky):
         """
         Construct a Crate object.
 
         Args:
             milky: Milky object that the object should be attached to.
-            bottle: The XML element which describes the object.
         """
         self.milky = milky
+        self._bottle: Bottle | None = None
+
+    def _get_bottle(self) -> Bottle:
+        assert self._bottle is not None
+        return self._bottle
+
+    def _set_bottle(self, bottle: ET.Element | Bottle) -> None:
         if isinstance(bottle, ET.Element):
             bottle = self.bottle_class(bottle)
         elif type(bottle) is self.bottle_class:
@@ -138,7 +145,10 @@ class Crate:
             bottle = self.bottle_class(bottle.element)
         else:
             raise ValueError(type(bottle))
-        self.bottle = bottle
+        self._bottle = bottle
+
+    # https://github.com/python/mypy/issues/14684
+    bottle = property(_get_bottle, _set_bottle)
 
     def __call__(self, method: str, action: Action, /, **params: ParamType) -> Bottle:
         """
@@ -176,6 +186,39 @@ class Crate:
         identify this object when making calls to RTM.
         """
         return {}
+
+
+class SimpleCrate(Crate):
+    def __init__(self, milky: Milky, bottle: ET.Element | Bottle):
+        """
+        Construct a Crate object with XML data.
+
+        Args:
+            milky: Milky object that the object should be attached to.
+            bottle: The XML element which describes the object.
+        """
+        super().__init__(milky)
+        Crate.bottle.fset(self, bottle)
+
+
+class DynamicCrate(Crate, abc.ABC):
+
+    """
+    A crate object which will dynamically load the XML content only
+    when required.
+    """
+
+    @Crate.bottle.getter
+    def bottle(self) -> Bottle:
+        if self._bottle is not None:
+            return self._bottle
+
+        self.bottle = bottle = self._load_content()
+        return bottle
+
+    @abc.abstractmethod
+    def _load_content(self) -> Bottle:
+        ...
 
 
 T = TypeVar('T')
