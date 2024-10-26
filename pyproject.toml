@@ -69,7 +69,7 @@ target-version = "py38"
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["Q", "COM", "EM", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "ANN401", "D", "C408", "I001", "RUF100", "E501"]
+ignore = ["Q", "COM", "EM", "TRY003", "ANN101", "FBT", "D105", "A003", "ANN204", "ANN401", "D", "C408", "I001", "RUF100", "E501", "S101"]
 
 [tool.ruff.lint.per-file-ignores]
 "noxfile.py" = ["ANN", "D"]

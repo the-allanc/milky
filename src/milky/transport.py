@@ -29,12 +29,6 @@ if TYPE_CHECKING:
     ParamType = int | str
 
 
-def _efind(elem: ET.Element, expr: str) -> ET.Element:
-    if (res := elem.find(expr)) is None:
-        raise RuntimeError(f'did not find expected element "{expr}"')
-    return res
-
-
 def _client_maker() -> Client | None:
     with contextlib.suppress(ImportError):
         import httpx
@@ -82,10 +76,15 @@ class Identity:
     @staticmethod
     def from_response(resp: ET.Element) -> Identity:
         """Create an Identity object from an `Element` object."""
-        u = _efind(resp, 'auth/user').attrib
+        usr = resp.find('auth/user')
+        assert usr is not None
+        u = usr.attrib
+
+        perms = resp.find('auth/perms')
+        assert perms is not None
 
         return Identity(
-            perms=_efind(resp, 'auth/perms').text or '',
+            perms=perms.text or '',
             user_id=int(u['id']),
             username=u['username'],
             fullname=u['fullname'],
@@ -205,7 +204,8 @@ class Transport:
         resp = self.invoke_request(method, **kwargs)
         result = ET.fromstring(resp.text)  # noqa: S314
         if result.get('stat') == 'fail':
-            err = _efind(result, 'err')
+            err = result.find('err')
+            assert err is not None
             raise ResponseError.from_response(result, err)
 
         return result
@@ -342,8 +342,9 @@ class Transport:
         if not webapp:
             rsp: ET.Element = self.invoke('rtm.auth.getFrob', auth_token=False)
             self.token = None
-            frob = _efind(rsp, 'frob').text or ''
-            params['frob'] = self.frob = frob
+            efrob = rsp.find('frob')
+            assert efrob is not None
+            params['frob'] = self.frob = efrob.text or ''
 
         param_pairs = self.sign_params(perms=perms, **params)
         url = self.AUTH_URL + '?' + urllib.parse.urlencode(param_pairs)
@@ -366,5 +367,7 @@ class Transport:
         resp: ET.Element = self.invoke(
             'rtm.auth.getToken', frob=self.frob, auth_token=False
         )
-        self.token = _efind(resp, 'auth/token').text
+        token = resp.find('auth/token')
+        assert token is not None
+        self.token = token.text
         self.whoami = Identity.from_response(resp)
