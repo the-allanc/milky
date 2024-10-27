@@ -77,7 +77,7 @@ def mypy(session):
     reqs = session.poetry.export_requirements()
     session.install('-r', str(reqs))
     session.install('types-requests')
-    args = session.posargs or ['src/']
+    args = session.posargs or ['src/', 'tests/test_models.py']
     session.run("mypy", *args)
 
 
