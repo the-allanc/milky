@@ -228,9 +228,12 @@ class BottleDescriptor(Generic[T]):
 
     loader: Callable[[str], T]
 
-    def __init__(self, attr: str, loader: Callable[[str], T]) -> None:
+    def __init__(self, attr: str | None, loader: Callable[[str], T]) -> None:
         self.attr = attr
         self.loader = loader
+
+    def __set_name__(self, owner: type[Crate], name: str) -> None:
+        self.attr = self.attr or name
 
     @overload
     def __get__(self, instance: None, owner: type[Crate]) -> BottleDescriptor[T]:
@@ -245,5 +248,7 @@ class BottleDescriptor(Generic[T]):
     ) -> BottleDescriptor | T:
         if instance is None:
             return self
+
+        assert self.attr is not None
         value = getattr(instance.bottle, self.attr)
         return self.loader(value)

@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import TypeVar
+from typing import Protocol, TypeVar
 
 from milky.datatypes import BottleDescriptor
 
@@ -13,9 +13,14 @@ def _f_with_null(f: Callable[[str], T]) -> Callable[[str], T | None]:
     return load
 
 
+class PartialPropertyProtocol(Protocol[T]):
+    def __call__(self, attr: str | None = None) -> BottleDescriptor[T]:
+        ...
+
+
 # Partial function generator.
-def _property_maker(loader: Callable[[str], T]) -> Callable[[str], BottleDescriptor[T]]:
-    def _partial_property(attr: str) -> BottleDescriptor[T]:
+def _property_maker(loader: Callable[[str], T]) -> PartialPropertyProtocol[T]:
+    def _partial_property(attr: str | None = None) -> BottleDescriptor[T]:
         return BottleDescriptor(attr, loader)
 
     return _partial_property
