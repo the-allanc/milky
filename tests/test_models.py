@@ -39,6 +39,10 @@ def test_settings(conn: Milky, vcr: Any) -> None:
 
 
 class TestLists:
+    @pytest.fixture
+    def conn(self, conn):
+        conn.cache.lists.on = False
+        return conn
 
     EXPECTED_LISTS = ('Inbox', 'Work', 'Sent', 'Personal')
 
@@ -52,15 +56,15 @@ class TestLists:
         conn.invoke('rtm.lists.add', timeline=True, name='Biscuit')
         assert {ll.name for ll in ls} == expected
 
-        # Delete the cache, and the new list should be there.
-        del conn.lists
+        # The new list should be there.
         ls = conn.lists
         expected.add('Biscuit')
         assert {ll.name for ll in ls} == expected
 
     def test_list_attributes(self, conn: Milky):
-        inbox = conn.lists['Inbox']
-        assert inbox == conn.lists['Inbox']
+        clists = conn.lists
+        inbox = clists['Inbox']
+        assert inbox == clists['Inbox']
 
         assert inbox.deleted is False
         assert inbox.locked is True
@@ -69,7 +73,7 @@ class TestLists:
         assert inbox.smart is False
         assert inbox.query is None
 
-        foobar = conn.lists['foobar']
+        foobar = clists['foobar']
         assert foobar.locked is False
         assert foobar.position == 0
         assert foobar.smart is True
@@ -80,28 +84,25 @@ class TestLists:
         expected = set(self.EXPECTED_LISTS)
         assert {ll.name for ll in ls} == expected
 
+        # Create two lists.
         home = ls.create('Home')
         hipri = ls.create('High Priority', query='priority:1')
 
+        # The queries should be found.
         assert hipri.query == 'priority:1'
         assert home.query is None
 
+        # The lists we've created should be on our own Lists object.
         expected |= {'Home', 'High Priority'}
-        assert {ll.name for ll in ls} == expected
-
-        ls = conn.lists
         assert {ll.name for ll in ls} == expected
 
         home.delete()
         assert home.deleted is True
 
-        # Deleting a list won't remove it from our own lists
-        # object.
+        # Deleting a list won't remove it from our own Lists object.
         assert {ll.name for ll in ls} == expected
 
-        # Though deleted lists don't show up when you get them
-        # again.
-        del conn.lists
+        # Though deleted lists won't show up when you get them again.
         ls = conn.lists
         expected.remove('Home')
         assert {ll.name for ll in ls} == expected
