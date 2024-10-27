@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from milky import Milky, Transport
+from milky import Milky, ResponseError, Transport
 
 from . import has_httplib
 
@@ -74,3 +74,39 @@ class TestLists:
         assert foobar.position == 0
         assert foobar.smart is True
         assert foobar.query == 'name:foo OR name:bar'
+
+    def test_add_and_delete_list(self, conn: Milky):
+        ls = conn.lists
+        expected = set(self.EXPECTED_LISTS)
+        assert {ll.name for ll in ls} == expected
+
+        home = ls.create('Home')
+        hipri = ls.create('High Priority', query='priority:1')
+
+        assert hipri.query == 'priority:1'
+        assert home.query is None
+
+        expected |= {'Home', 'High Priority'}
+        assert {ll.name for ll in ls} == expected
+
+        ls = conn.lists
+        assert {ll.name for ll in ls} == expected
+
+        home.delete()
+        assert home.deleted is True
+
+        # Deleting a list won't remove it from our own lists
+        # object.
+        assert {ll.name for ll in ls} == expected
+
+        # Though deleted lists don't show up when you get them
+        # again.
+        del conn.lists
+        ls = conn.lists
+        expected.remove('Home')
+        assert {ll.name for ll in ls} == expected
+
+    def test_add_list_fails(self, conn: Milky):
+        with pytest.raises(ResponseError) as e:
+            conn.lists.create('Inbox')
+        assert e.value.message == "List name provided is invalid."

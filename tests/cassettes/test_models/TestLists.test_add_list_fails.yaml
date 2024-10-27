@@ -1,0 +1,99 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.timelines.create&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><timeline>1804121377</timeline></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d8e2b0e5b7ecd6c-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sat, 26 Oct 2024 23:18:54 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '90'
+      x-s-t:
+      - 0 2
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.lists.add&name=Inbox&timeline=1804121377&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="fail"><err code="3000"
+        msg="List name provided is invalid."/></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d8e2b0f2c28cd6c-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sat, 26 Oct 2024 23:18:54 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '116'
+      x-s-t:
+      - 0 1
+    status:
+      code: 200
+      message: OK
+version: 1
