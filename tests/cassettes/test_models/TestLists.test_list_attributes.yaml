@@ -1,0 +1,58 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.lists.getList&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><lists><list id="48801462"
+        name="Inbox" deleted="0" locked="1" archived="0" position="-1" smart="0" sort_order="0"
+        permission="owner"/><list id="48801463" name="Sent" deleted="0" locked="1"
+        archived="0" position="1" smart="0" sort_order="0" permission="owner"/><list
+        id="48801464" name="Personal" deleted="0" locked="0" archived="0" position="0"
+        smart="0" sort_order="0" permission="owner"/><list id="48801465" name="Work"
+        deleted="0" locked="0" archived="0" position="0" smart="0" sort_order="0"
+        permission="owner"/><list id="50774475" name="foobar" deleted="0" locked="0"
+        archived="0" position="0" smart="1" sort_order="0"><filter>name:foo OR name:bar</filter></list></lists></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d8dfa230a4952b4-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sat, 26 Oct 2024 22:45:30 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '736'
+      x-s-t:
+      - 0 4
+    status:
+      code: 200
+      message: OK
+version: 1

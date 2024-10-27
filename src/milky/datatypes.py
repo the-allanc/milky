@@ -234,6 +234,10 @@ class BottleDescriptor(Generic[T]):
         self.attr = attr
         self.loader = loader
 
+    def getter(self, default: T) -> BottleDescriptor[T]:
+        self.default = default
+        return self
+
     def __set_name__(self, owner: type[Crate], name: str) -> None:
         self.attr = self.attr or name
 
@@ -252,5 +256,12 @@ class BottleDescriptor(Generic[T]):
             return self
 
         assert self.attr is not None
-        value = getattr(instance.bottle, self.attr)
-        return self.loader(value)
+
+        try:
+            value = instance.bottle[self.attr]
+        except KeyError:
+            if hasattr(self, 'default'):
+                return self.default
+            raise AttributeError(self.attr) from None
+        else:
+            return self.loader(value)

@@ -57,3 +57,20 @@ class TestLists:
         ls = conn.lists
         expected.add('Biscuit')
         assert {ll.name for ll in ls} == expected
+
+    def test_list_attributes(self, conn: Milky):
+        inbox = conn.lists['Inbox']
+        assert inbox == conn.lists['Inbox']
+
+        assert inbox.deleted is False
+        assert inbox.locked is True
+        assert inbox.archived is False
+        assert inbox.position == -1
+        assert inbox.smart is False
+        assert inbox.query is None
+
+        foobar = conn.lists['foobar']
+        assert foobar.locked is False
+        assert foobar.position == 0
+        assert foobar.smart is True
+        assert foobar.query == 'name:foo OR name:bar'
