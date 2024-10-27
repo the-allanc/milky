@@ -233,9 +233,14 @@ class BottleDescriptor(Generic[T]):
     def __init__(self, attr: str | None, loader: Callable[[str], T]) -> None:
         self.attr = attr
         self.loader = loader
+        self.setmethod: str | None = None
 
     def getter(self, default: T) -> BottleDescriptor[T]:
         self.default = default
+        return self
+
+    def setter(self, method_name: str) -> BottleDescriptor[T]:
+        self.setmethod = method_name
         return self
 
     def __set_name__(self, owner: type[Crate], name: str) -> None:
@@ -265,3 +270,9 @@ class BottleDescriptor(Generic[T]):
             raise AttributeError(self.attr) from None
         else:
             return self.loader(value)
+
+    def __set__(self, instance: Crate, value: ParamType):
+        if not self.setmethod:
+            raise ValueError('read-only attribute')
+        assert self.attr is not None
+        instance(self.setmethod, Action.UPDATE, **{self.attr: value})

@@ -26,7 +26,7 @@ class Settings(DynamicCrate):
 
 
 class List(SimpleCrate):
-    name = rtmtypes.Str()
+    name = rtmtypes.Str().setter('rtm.lists.setName')
     id = rtmtypes.Int()
     deleted = rtmtypes.Bool()
     locked = rtmtypes.Bool()

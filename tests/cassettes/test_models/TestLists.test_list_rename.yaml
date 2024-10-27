@@ -1,0 +1,216 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.lists.getList&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><lists><list id="48801462"
+        name="Inbox" deleted="0" locked="1" archived="0" position="-1" smart="0" sort_order="0"
+        permission="owner"/><list id="48801463" name="Sent" deleted="0" locked="1"
+        archived="0" position="1" smart="0" sort_order="0" permission="owner"/><list
+        id="48801464" name="Personal" deleted="0" locked="0" archived="0" position="0"
+        smart="0" sort_order="0" permission="owner"/><list id="48801465" name="Work"
+        deleted="0" locked="0" archived="0" position="0" smart="0" sort_order="0"
+        permission="owner"/><list id="50782204" name="High Priority" deleted="0" locked="0"
+        archived="0" position="0" smart="1" sort_order="0"><filter>priority:1</filter></list><list
+        id="50783536" name="foobar" deleted="0" locked="0" archived="0" position="0"
+        smart="0" sort_order="0" permission="owner"/></lists></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d967fa20e71654b-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sun, 27 Oct 2024 23:34:44 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '861'
+      x-s-t:
+      - 0 5
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.timelines.create&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><timeline>1804355670</timeline></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d967fa35fd7654b-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sun, 27 Oct 2024 23:34:45 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '90'
+      x-s-t:
+      - 0 4
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?list_id=50783536&method=rtm.lists.setName&name=barfoo&timeline=1804355670&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><transaction id="18587319854"
+        undoable="1"/><list id="50783536" name="barfoo" deleted="0" locked="0" archived="0"
+        position="0" smart="0" sort_order="0" permission="owner"/></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d967fa5a9dc654b-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sun, 27 Oct 2024 23:34:45 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '231'
+      x-s-t:
+      - 0 18
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3 milky/0.2.0
+      cache-control:
+      - no-cache
+    method: GET
+    uri: https://api.rememberthemilk.com/services/rest/?method=rtm.lists.getList&v=2
+  response:
+    body:
+      string: <?xml version='1.0' encoding='UTF-8'?><rsp stat="ok"><lists><list id="48801462"
+        name="Inbox" deleted="0" locked="1" archived="0" position="-1" smart="0" sort_order="0"
+        permission="owner"/><list id="48801463" name="Sent" deleted="0" locked="1"
+        archived="0" position="1" smart="0" sort_order="0" permission="owner"/><list
+        id="48801464" name="Personal" deleted="0" locked="0" archived="0" position="0"
+        smart="0" sort_order="0" permission="owner"/><list id="48801465" name="Work"
+        deleted="0" locked="0" archived="0" position="0" smart="0" sort_order="0"
+        permission="owner"/><list id="50782204" name="High Priority" deleted="0" locked="0"
+        archived="0" position="0" smart="1" sort_order="0"><filter>priority:1</filter></list><list
+        id="50783536" name="barfoo" deleted="0" locked="0" archived="0" position="0"
+        smart="0" sort_order="0" permission="owner"/></lists></rsp>
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 8d967fa85c83654b-LHR
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Sun, 27 Oct 2024 23:34:45 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '861'
+      x-s-t:
+      - 0 3
+    status:
+      code: 200
+      message: OK
+version: 1

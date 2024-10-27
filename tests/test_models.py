@@ -111,3 +111,26 @@ class TestLists:
         with pytest.raises(ResponseError) as e:
             conn.lists.create('Inbox')
         assert e.value.message == "List name provided is invalid."
+
+    def test_list_rename(self, conn: Milky):
+
+        # Rename a list.
+        ls = conn.lists
+        foobar = ls['foobar']
+        foobar.name = 'barfoo'
+        assert foobar.name == 'barfoo'
+
+        # Looking it up by new name should find it,
+        # but not by the old one.
+        assert ls['barfoo'].name == 'barfoo'
+        with pytest.raises(KeyError):
+            ls['foobar']
+        assert ls.get('foobar') is None
+
+        # Should be able to find the new list.
+        barfoo = conn.lists['barfoo']
+        assert barfoo.name == 'barfoo'
+
+        # Just to show that we aren't just reusing the
+        # same List object.
+        assert foobar is not barfoo
