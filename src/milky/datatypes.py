@@ -150,7 +150,9 @@ class Crate:
     # https://github.com/python/mypy/issues/14684
     bottle = property(_get_bottle, _set_bottle)
 
-    def __call__(self, method: str, action: Action, /, **params: ParamType) -> Bottle:
+    def __call__(
+        self, method: str, action: Action = Action.READ, /, **params: ParamType
+    ) -> Bottle:
         """
         Invoke a method against this object.
 

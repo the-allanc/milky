@@ -6,7 +6,7 @@ from milky.datatypes import Bottle, DynamicCrate
 
 class Settings(DynamicCrate):
     def _load_content(self) -> Bottle:
-        return self.milky.invoke('rtm.settings.getList')
+        return self('rtm.settings.getList')
 
     timezone = rtmtypes.OptionalStr()
     date_format = rtmtypes.Int('dateformat/')
