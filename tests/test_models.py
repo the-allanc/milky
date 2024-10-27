@@ -36,3 +36,24 @@ def test_settings(conn: Milky, vcr: Any) -> None:
     # Ensure we're not continuously loading the object when accessing
     # other attributes.
     assert req_count + 1 == vcr.play_count
+
+
+class TestLists:
+
+    EXPECTED_LISTS = ('Inbox', 'Work', 'Sent', 'Personal')
+
+    def test_list_the_lists(self, conn: Milky):
+        ls = conn.lists
+        expected = set(self.EXPECTED_LISTS)
+        assert {ll.name for ll in ls} == expected
+
+        # Add a list via the lower-level API. Because we're using
+        # caching, we don't expect to see the new list.
+        conn.invoke('rtm.lists.add', timeline=True, name='Biscuit')
+        assert {ll.name for ll in ls} == expected
+
+        # Delete the cache, and the new list should be there.
+        del conn.lists
+        ls = conn.lists
+        expected.add('Biscuit')
+        assert {ll.name for ll in ls} == expected

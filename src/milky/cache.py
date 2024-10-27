@@ -10,8 +10,8 @@ T = TypeVar('T')
 
 class Cache:
     DEFAULTS = (
+        ('lists', True),
         ('settings', True),
-        ('settings.timezone', True),
         ('timeline', True),
     )
 

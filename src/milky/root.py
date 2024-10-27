@@ -54,6 +54,10 @@ class Milky:
     def settings(self) -> models.Settings:
         return models.Settings(self)
 
+    @cache_controlled('lists')
+    def lists(self) -> models.Lists:
+        return models.Lists(self)
+
     @property
     def timezone(self) -> str | None:
         return self.settings.timezone
