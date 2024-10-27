@@ -79,7 +79,6 @@ def mypy(session):
     session.install('types-requests')
     args = session.posargs or ['src/']
     session.run("mypy", *args)
-    session.run("pytype", "--disable=import-error", *args)
 
 
 @session

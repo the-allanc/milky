@@ -26,7 +26,6 @@ flake8-warnings = "*"
 flake8-expression-complexity = "*"
 flake8-noqa = "*"
 flake8-cognitive-complexity = "*"
-pytype = "*"
 mkdocs = "*"
 mkdocstrings = {extras = ["python"], version = "*"}
 mkdocs-material = "*"
