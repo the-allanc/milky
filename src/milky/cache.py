@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TYPE_CHECKING, TypeVar
+from typing import Any, Generic, overload, TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -89,7 +89,18 @@ class CacheableProperty(Generic[T]):
         except KeyError:
             raise AttributeError(self.location) from None
 
+    @overload
+    def __get__(self, instance: None, owner: type) -> CacheableProperty:
+        ...
+
+    @overload
     def __get__(self, instance: object, owner: type) -> T:
+        ...
+
+    def __get__(self, instance: object, owner: type) -> T | CacheableProperty:
+        if instance is None:
+            return self
+
         # Use cache if it exists.
         if self.name in instance.__dict__:
             return instance.__dict__[self.name]
@@ -102,7 +113,7 @@ class CacheableProperty(Generic[T]):
 
         return result
 
-    def __set__(self, instance: Any, value: Any):
+    def __set__(self, instance: Any, value: T):
         if self.can_cache_on(instance):
             instance.__dict__[self.name] = value
 

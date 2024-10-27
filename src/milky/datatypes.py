@@ -120,7 +120,7 @@ class Crate:
     """Base class which represents a RTM object that pulls its information
     from a XML element."""
 
-    bottle_class = Bottle
+    bottle_class: type[Bottle] = Bottle
 
     def __init__(self, milky: Milky):
         """
@@ -233,7 +233,7 @@ class BottleDescriptor(Generic[T]):
         self.loader = loader
 
     @overload
-    def __get__(self, instance: None, owner: None) -> BottleDescriptor:
+    def __get__(self, instance: None, owner: type[Crate]) -> BottleDescriptor[T]:
         ...
 
     @overload
