@@ -9,7 +9,7 @@ import urllib.parse
 import webbrowser
 
 from dataclasses import dataclass
-from typing import Any, TYPE_CHECKING
+from typing import Any, TypeAlias, TYPE_CHECKING
 
 from xml.etree import ElementTree as ET  # noqa: RUF100, DUO107, S405
 
@@ -23,9 +23,9 @@ if TYPE_CHECKING:
     import httpx
     import requests
 
-    Response = requests.models.Response | httpx.Response
+    Response: TypeAlias = requests.models.Response | httpx.Response
     ResponseContent = ET.Element | dict[str, Any]
-    Client = requests.Session | httpx.Client
+    Client: TypeAlias = requests.Session | httpx.Client
     ParamType = int | str
 
 

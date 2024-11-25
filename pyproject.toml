@@ -34,6 +34,7 @@ ipython = "*"
 ipdb = "*"
 vcrpy = "*"
 urllib3 = "^1.26.20" # Until this is merged in - https://github.com/python-poetry/poetry-plugin-export/pull/286
+pytest-mypy-plugins = "*"
 
 [tool.coverage.paths]
 source = ["src"]

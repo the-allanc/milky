@@ -1,0 +1,17 @@
+- case: settings_model
+  main: |
+    from milky.root import Milky
+    conn: Milky
+    reveal_type(conn.settings.pro)
+    reveal_type(conn.settings.timezone)
+    reveal_type(conn.settings.date_format)
+    reveal_type(conn.settings.default_due_date)
+  out: |
+    main:3: note: Revealed type is "builtins.bool"
+    main:4: note: Revealed type is "Union[builtins.str, None]"
+    main:5: note: Revealed type is "builtins.int"
+    main:6: note: Revealed type is "Union[builtins.str, None]"
+  env:
+    - PYTHONPATH=src/
+  mypy_config: |
+    disable_error_code = import-not-found,import-untyped

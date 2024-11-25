@@ -4,6 +4,8 @@ import pytest
 import yaml
 
 
+# Optional to allow mypy related tests to run without requiring pytest-recording.
+@pytest.hookimpl(optionalhook=True)
 def pytest_recording_configure(config, vcr):
     # Make response bodies readable by convert bytes to text.
     from vcr.serializers import yamlserializer as ysz

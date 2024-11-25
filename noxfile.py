@@ -9,7 +9,7 @@ import nox
 
 # When running on Github, let all the sessions be selected.
 if not os.environ.get('GITHUB_WORKSPACE'):
-    nox.options.sessions = "tests", "lint", "mypy", "safety"
+    nox.options.sessions = "tests", "lint", "mypy", "safety", "typecheck"
     nox.options.stop_on_first_error = True
 
 locations = 'src', 'tests', 'noxfile.py'
@@ -80,6 +80,10 @@ def mypy(session):
     args = session.posargs or ['src/', 'tests/test_models.py']
     session.run("mypy", *args)
 
+@session
+def typecheck(session):
+    session.install("pytest", "pytest-mypy-plugins", "types-requests")
+    session.run("pytest", "tests/typing/")
 
 @session
 def mkdocs(session):
