@@ -271,8 +271,9 @@ class BottleDescriptor(Generic[T]):
         else:
             return self.loader(value)
 
-    def __set__(self, instance: Crate, value: ParamType):
+    def __set__(self, instance: Crate, value: T):
         if not self.setmethod:
             raise ValueError('read-only attribute')
         assert self.attr is not None
+        assert isinstance(value, (int, str))
         instance(self.setmethod, Action.UPDATE, **{self.attr: value})
