@@ -312,8 +312,8 @@ class Transport:
             raise
 
         res = self.__check_token()
-        self.whoami = Identity.from_response(res) if res else None
-        return bool(res)
+        self.whoami = Identity.from_response(res) if res is not None else None
+        return res is not None
 
     def start_auth(
         self,

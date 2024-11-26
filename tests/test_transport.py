@@ -270,4 +270,5 @@ class TestCassetteCredentials:
     def test_logged_in(self, t_params):
         # This just tests that we can use cassettes which has
         # credential information stripped out.
-        assert Transport(**t_params).invoke('rtm.lists.getList').find('lists')
+        elem = Transport(**t_params).invoke('rtm.lists.getList')
+        assert elem.find('lists') is not None
